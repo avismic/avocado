@@ -107,6 +107,20 @@ export function mountOwnerDashboard() {
             <p>Review fuel expenses, odometer readings, and history</p>
           </div>
         </div>
+        <div class="tile-card apple-card" id="owner-add-driver-tile">
+  <div class="icon-wrapper">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="8.5" cy="7" r="4"></circle>
+      <line x1="20" y1="8" x2="20" y2="14"></line>
+      <line x1="23" y1="11" x2="17" y2="11"></line>
+    </svg>
+  </div>
+  <div class="tile-content">
+    <h3>Add Driver</h3>
+    <p>Register new drivers under your fleet management account</p>
+  </div>
+</div>
       </div>
     </section>
   `;
@@ -114,6 +128,11 @@ export function mountOwnerDashboard() {
   document.getElementById('logout-btn').addEventListener('click', () => logout());
   document.getElementById('owner-attendance-tile').addEventListener('click', () => navigate('#owner-attendance'));
   document.getElementById('owner-fuel-tile').addEventListener('click', () => navigate('#owner-fuel'));
+  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document.getElementById('owner-attendance-tile').addEventListener('click', () => navigate('#owner-attendance'));
+  document.getElementById('owner-fuel-tile').addEventListener('click', () => navigate('#owner-fuel'));
+  document.getElementById('owner-add-driver-tile').addEventListener('click', () => navigate('#owner-add-driver'));
+
 }
 
 export async function mountOwnerAttendance() {

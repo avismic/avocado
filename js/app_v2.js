@@ -2,7 +2,13 @@
 import { registerRoute, navigate } from "./router.js";
 import { isAuthenticated } from "./auth.js";
 import { mountLogin } from "../features/login/login.js";
+import { mountDriverDashboard } from "../features/driver-dashboard/driver-dashboard.js";
+import { mountOwnerDashboard } from "../features/owner-dashboard/owner-dashboard.js";
 
+// Register routes
+registerRoute("login", mountLogin);
+registerRoute("driver-dashboard", mountDriverDashboard);
+registerRoute("owner-dashboard", mountOwnerDashboard);
 // Simple placeholder dashboard renderers (real dashboards would live in their own feature folders)
 function mountDriverDashboard() {
   const app = document.getElementById("app");

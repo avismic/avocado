@@ -10,6 +10,7 @@ import {
   mountOwnerFuel,
 } from "../features/owner-dashboard/owner-dashboard.js";
 import { isAuthenticated, getUser } from "./auth.js";
+import { mountAddDriver } from "../features/owner-dashboard/add-driver.js";
 
 // Register driver routes
 // Register auth route
@@ -22,6 +23,7 @@ registerRoute("driver-fuel", mountFuelPage);
 registerRoute("owner-dashboard", mountOwnerDashboard);
 registerRoute("owner-attendance", mountOwnerAttendance);
 registerRoute("owner-fuel", mountOwnerFuel);
+registerRoute("owner-add-driver", mountAddDriver);
 
 // Initial navigation based on auth state & role
 if (!isAuthenticated()) {

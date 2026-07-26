@@ -109,6 +109,61 @@ app.post("/api/fuel", async (req, res) => {
   }
 });
 
+app.post("/api/drivers", async (req, res) => {
+  try {
+    const { username, password, full_name, owner_id } = req.body;
+
+    if (!username || !password || !full_name) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const existing = await sql`
+      SELECT id FROM users WHERE username = ${username}
+    `;
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Username already taken" });
+    }
+
+    const newDriver = await sql`
+      INSERT INTO users (username, password_hash, full_name, role, owner_id)
+      VALUES (${username}, ${password}, ${full_name}, 'driver', ${owner_id ?? null})
+      RETURNING id, username, full_name, role
+    `;
+
+    res.status(201).json(newDriver[0]);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/drivers", async (req, res) => {
+  try {
+    const { owner_id } = req.query;
+
+    let drivers;
+    if (owner_id) {
+      drivers = await sql`
+        SELECT id, username, full_name, role 
+        FROM users 
+        WHERE role = 'driver' AND owner_id = ${owner_id}
+      `;
+    } else {
+      drivers = await sql`
+        SELECT id, username, full_name, role 
+        FROM users 
+        WHERE role = 'driver'
+      `;
+    }
+
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
