@@ -78,13 +78,18 @@ export async function mountOwnerAttendance() {
     const rows = driverLogs
       .sort((a, b) => b.timestamp - a.timestamp)
       .map((log) => {
-        const d = new Date(log.timestamp);
-        const date = d.toISOString().split("T")[0];
+        const d = new Date(Number(log.timestamp));
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const date = `${year}-${month}-${day}`;
         const time = d.toLocaleTimeString(undefined, {
           hour: "numeric",
           minute: "2-digit",
         });
-        const loc = `${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}`;
+        const loc =
+          log.address ||
+          `${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}`;
         return `
           <tr>
             <td><span class="driver-badge">${driverName}</span></td>
@@ -129,13 +134,16 @@ export async function mountOwnerAttendance() {
         let csvContent =
           "data:text/csv;charset=utf-8,Driver,Date,Time,Location\n";
         driverLogs.forEach((log) => {
-          const d = new Date(log.timestamp);
-          const date = d.toISOString().split("T")[0];
+          const d = new Date(Number(log.timestamp));
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const date = `${year}-${month}-${day}`;
           const time = d.toLocaleTimeString(undefined, {
             hour: "numeric",
             minute: "2-digit",
           });
-          const loc = `"${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}"`;
+          const loc = `"${log.address || `${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}`}"`;
           csvContent += `"${driverName}","${date}","${time}",${loc}\n`;
         });
         const encodedUri = encodeURI(csvContent);

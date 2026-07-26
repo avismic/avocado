@@ -87,22 +87,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// app.post("/api/attendance", async (req, res) => {
-//   try {
-//     const { id, driver_id, latitude, longitude, timestamp } = req.body;
-
-//     await sql`
-//       INSERT INTO attendance_logs (id, driver_id, latitude, longitude, timestamp)
-//       VALUES (${id}, ${driver_id}, ${latitude}, ${longitude}, ${Number(timestamp)})
-//     `;
-
-//     res.status(200).json({ success: true, message: "Attendance recorded" });
-//   } catch (error) {
-//     console.error("Database error:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
 app.post("/api/attendance", async (req, res) => {
   try {
     const { id, driver_id, latitude, longitude, timestamp } = req.body;
@@ -224,51 +208,6 @@ app.get("/api/drivers", async (req, res) => {
   }
 });
 
-// app.get("/api/drivers/details", async (req, res) => {
-//   try {
-//     const { owner_id } = req.query;
-//     if (!owner_id) {
-//       return res.status(400).json({ error: "owner_id is required" });
-//     }
-
-//     const drivers = await sql`
-//       SELECT
-//         u.id,
-//         u.full_name,
-//         u.username,
-//         u.password_hash AS password,
-//         COALESCE(f.total_fuel, 0) AS total_fuel_spent,
-//         a.last_attendance_time,
-//         a.last_latitude,
-//         a.last_longitude
-//       FROM users u
-//       LEFT JOIN (
-//         SELECT
-//           driver_id,
-//           SUM(cost) AS total_fuel
-//         FROM fuel_logs
-//         GROUP BY driver_id
-//       ) f ON u.id = f.driver_id
-//       LEFT JOIN (
-//         SELECT DISTINCT ON (driver_id)
-//           driver_id,
-//           timestamp AS last_attendance_time,
-//           latitude AS last_latitude,
-//           longitude AS last_longitude
-//         FROM attendance_logs
-//         ORDER BY driver_id, timestamp DESC
-//       ) a ON u.id = a.driver_id
-//       WHERE u.role = 'driver' AND u.owner_id = ${owner_id}
-//       ORDER BY u.full_name ASC
-//     `;
-
-//     res.status(200).json(drivers);
-//   } catch (error) {
-//     console.error("Error fetching driver details:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
 app.get("/api/drivers/details", async (req, res) => {
   try {
     const { owner_id } = req.query;
@@ -364,6 +303,31 @@ app.delete("/api/drivers/:id", async (req, res) => {
     }
 
     res.status(200).json({ success: true, message: "Driver deleted" });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/attendance", async (req, res) => {
+  try {
+    const { driver_id } = req.query;
+    let logs;
+    if (driver_id) {
+      logs = await sql`
+        SELECT id, driver_id, latitude, longitude, address, timestamp 
+        FROM attendance_logs 
+        WHERE driver_id = ${driver_id} 
+        ORDER BY timestamp DESC
+      `;
+    } else {
+      logs = await sql`
+        SELECT id, driver_id, latitude, longitude, address, timestamp 
+        FROM attendance_logs 
+        ORDER BY timestamp DESC
+      `;
+    }
+    res.status(200).json(logs);
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: error.message });
