@@ -1,47 +1,30 @@
-// js/router.js – Minimal hash‑based router with role guards
 import { isAuthenticated, getUser } from "./auth.js";
 
-// Registry of route callbacks – each callback receives the hash (without "#")
 const routes = new Map();
 
-/** Register a route handler */
 export function registerRoute(routeHash, handler) {
   routes.set(routeHash, handler);
 }
 
-/** Internal – resolve destination based on auth state and role */
 function resolveTarget(hash = "") {
   const cleanHash = (hash || "").replace(/^#/, "");
-
-  // Public routes
   if (cleanHash === "login") return { hash: "#login" };
-
-  // Protected routes – must be authenticated
   if (!isAuthenticated()) {
     return { hash: "#login" };
   }
-
   const user = getUser();
   if (!user) return { hash: "#login" };
-
-  // Role‑specific dashboard mapping
   const roleDash = {
     admin: "#admin-dashboard",
     driver: "#driver-dashboard",
     owner: "#owner-dashboard",
   };
-
-  // Admin-only pages list
   const adminOnly = ["admin-dashboard", "admin-add-owner", "admin-see-owners"];
-
-  // Driver‑only pages list
   const driverOnly = [
     "driver-dashboard",
     "driver-attendance-history",
     "driver-fuel",
   ];
-
-  // Owner‑only pages list
   const ownerOnly = [
     "owner-dashboard",
     "owner-attendance",
@@ -52,18 +35,13 @@ function resolveTarget(hash = "") {
   if (adminOnly.includes(cleanHash) && user.role !== "admin") {
     return { hash: "#admin-dashboard" };
   }
-  // Guard against accessing driver‑only page when not driver
   if (driverOnly.includes(cleanHash) && user.role !== "driver") {
     return { hash: "#driver-dashboard" };
   }
 
-  // Guard against accessing owner‑only page when not owner
   if (ownerOnly.includes(cleanHash) && user.role !== "owner") {
     return { hash: "#owner-dashboard" };
   }
-
-  // If valid hash for user's role, keep it
-  // If valid hash for user's role, keep it
   if (
     (adminOnly.includes(cleanHash) && user.role === "admin") ||
     (driverOnly.includes(cleanHash) && user.role === "driver") ||
@@ -71,13 +49,10 @@ function resolveTarget(hash = "") {
   ) {
     return { hash: `#${cleanHash}` };
   }
-  // Default fallback – send to appropriate dashboard based on role
   return { hash: roleDash[user.role] || "#login" };
 }
 
 let isNavigating = false;
-
-/** Navigate to a hash (updates URL & triggers rendering) */
 export function navigate(targetHash) {
   const currentHash =
     (typeof window !== "undefined" &&
@@ -96,7 +71,6 @@ export function navigate(targetHash) {
   }
 }
 
-/** Core hash change handler – calls the registered route callback */
 function handleHashChange() {
   if (isNavigating) return;
   isNavigating = true;
@@ -108,7 +82,6 @@ function handleHashChange() {
       "";
     const resolved = resolveTarget(currentHash);
     const clean = resolved.hash.replace(/^#/, "");
-
     const handler = routes.get(clean);
     if (handler) {
       handler();
@@ -118,7 +91,6 @@ function handleHashChange() {
   }
 }
 
-// Listen to native hash changes in browser environments
 if (typeof window !== "undefined") {
   window.addEventListener("hashchange", handleHashChange);
 }

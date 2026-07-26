@@ -1,3 +1,4 @@
+//path: features/owner-dashboard/see-drivers.js
 import "../../css/global.css";
 import "./see-drivers.css";
 import { logout, getUser } from "../../js/auth.js";
@@ -13,8 +14,7 @@ export async function mountSeeDrivers() {
       <header class="owner-header">
         <button class="btn-secondary back-btn" id="back-btn">← Back</button>
         <div>
-          <p class="subtitle">Fleet Management</p>
-          <h2>Drivers Directory</h2>
+          <h2>Drivers</h2>
         </div>
         <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
       </header>
@@ -62,12 +62,16 @@ export async function mountSeeDrivers() {
               })
             : "N/A";
 
-        const lastLoc =
-          driver.last_latitude && driver.last_longitude
-            ? `${Number(driver.last_latitude).toFixed(4)}, ${Number(driver.last_longitude).toFixed(4)}`
-            : "N/A";
+        const lat = driver.last_latitude
+          ? Number(driver.last_latitude).toFixed(4)
+          : "0.0000";
+        const lng = driver.last_longitude
+          ? Number(driver.last_longitude).toFixed(4)
+          : "0.0000";
 
-        const fuelSpent = `$${Number(driver.total_fuel_spent).toFixed(2)}`;
+        const lastLoc = driver.last_address || `${lat}, ${lng}`;
+
+        const fuelSpent = `₹${Number(driver.total_fuel_spent || 0).toFixed(2)}`;
 
         return `
         <tr data-driver-id="${driver.id}">
@@ -131,12 +135,28 @@ export async function mountSeeDrivers() {
     const downloadBtn = container.querySelector("#download-drivers-btn");
     if (downloadBtn) {
       downloadBtn.addEventListener("click", () => {
-        let csvContent = "data:text/csv;charset=utf-8,Driver Name,Username,Password,Last Location,Total Fuel Spent,Last Attendance\n";
+        let csvContent =
+          "data:text/csv;charset=utf-8,Driver Name,Username,Password,Last Location,Total Fuel Spent,Last Attendance\n";
         drivers.forEach((driver) => {
-          const rawTime = driver.last_attendance_time ? Number(driver.last_attendance_time) : null;
-          const lastTime = rawTime && !isNaN(rawTime) ? new Date(rawTime).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }) : "N/A";
-          const lastLoc = driver.last_latitude && driver.last_longitude ? `"${Number(driver.last_latitude).toFixed(4)}, ${Number(driver.last_longitude).toFixed(4)}"` : "N/A";
-          const fuelSpent = `"$${Number(driver.total_fuel_spent).toFixed(2)}"`;
+          const rawTime = driver.last_attendance_time
+            ? Number(driver.last_attendance_time)
+            : null;
+          const lastTime =
+            rawTime && !isNaN(rawTime)
+              ? new Date(rawTime).toLocaleString(undefined, {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })
+              : "N/A";
+          const lat = driver.last_latitude
+            ? Number(driver.last_latitude).toFixed(4)
+            : "0.0000";
+          const lng = driver.last_longitude
+            ? Number(driver.last_longitude).toFixed(4)
+            : "0.0000";
+
+          const lastLoc = `"${driver.last_address || `${lat}, ${lng}`}"`;
+          const fuelSpent = `"₹${Number(driver.total_fuel_spent || 0).toFixed(2)}"`;
           csvContent += `"${driver.full_name}","@${driver.username}","${driver.password}",${lastLoc},${fuelSpent},"${lastTime}"\n`;
         });
         const encodedUri = encodeURI(csvContent);
