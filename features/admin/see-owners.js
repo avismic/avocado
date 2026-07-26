@@ -1,11 +1,11 @@
-import '../../css/global.css';
-import { logout } from '../../js/auth.js';
-import { navigate } from '../../js/router.js';
-import { apiFetch } from '../../js/utils/api.js';
+import "../../css/global.css";
+import { logout } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
 
 export async function mountSeeOwners() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
 
   app.innerHTML = `
     <section class="owner-page">
@@ -27,15 +27,47 @@ export async function mountSeeOwners() {
     </section>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('#admin-dashboard'));
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#admin-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
 
-  const listDiv = document.getElementById('owners-list');
+  const listDiv = document.getElementById("owners-list");
+  listDiv.innerHTML = `
+    <table style="width: 100%; border-collapse: collapse; text-align: left; opacity: 0.6;">
+      <thead>
+        <tr style="border-bottom: 1px solid #ddd;">
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;"><div style="height: 14px; width: 140px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 120px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 100px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;"><div style="height: 14px; width: 110px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 130px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 90px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+        <tr>
+          <td style="padding: 12px;"><div style="height: 14px; width: 150px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 100px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 110px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
 
   try {
-    const owners = await apiFetch('/api/admin/owners');
+    const owners = await apiFetch("/api/admin/owners");
     if (!owners || owners.length === 0) {
-      listDiv.innerHTML = '<p>No owners found.</p>';
+      listDiv.innerHTML = "<p>No owners found.</p>";
       return;
     }
 
@@ -49,13 +81,17 @@ export async function mountSeeOwners() {
           </tr>
         </thead>
         <tbody>
-          ${owners.map(o => `
+          ${owners
+            .map(
+              (o) => `
             <tr style="border-bottom: 1px solid #eee;">
               <td style="padding: 12px;">${o.full_name}</td>
               <td style="padding: 12px;">${o.username}</td>
               <td style="padding: 12px;">${o.password}</td>
             </tr>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     `;
