@@ -35,36 +35,38 @@ async function _renderDriverSelector(container, selectedId, ownerId, onSelect) {
         <button class="btn-primary" id="go-add-driver-btn" style="margin-top: 16px; padding: 8px 16px;">Add Driver</button>
       </div>
     `;
-    document.getElementById('go-add-driver-btn')?.addEventListener('click', () => navigate('#owner-add-driver'));
+    document
+      .getElementById("go-add-driver-btn")
+      ?.addEventListener("click", () => navigate("#owner-add-driver"));
     return drivers;
   }
-  const wrapper = document.createElement('div');
-  wrapper.className = 'driver-selector-card apple-card';
+  const wrapper = document.createElement("div");
+  wrapper.className = "driver-selector-card apple-card";
 
-  const label = document.createElement('label');
-  label.htmlFor = 'driver-select';
-  label.textContent = 'Select Driver';
+  const label = document.createElement("label");
+  label.htmlFor = "driver-select";
+  label.textContent = "Select Driver";
   wrapper.appendChild(label);
 
-  const select = document.createElement('select');
-  select.id = 'driver-select';
-  select.className = 'owner-select';
+  const select = document.createElement("select");
+  select.id = "driver-select";
+  select.className = "owner-select";
 
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = '-- Choose a driver --';
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "-- Choose a driver --";
   select.appendChild(placeholder);
 
-  drivers.forEach(driver => {
-    const opt = document.createElement('option');
+  drivers.forEach((driver) => {
+    const opt = document.createElement("option");
     opt.value = driver.id;
     opt.textContent = driver.full_name;
     if (driver.id === selectedId) opt.selected = true;
     select.appendChild(opt);
   });
 
-  select.addEventListener('change', () => onSelect(select.value));
-  container.innerHTML = '';
+  select.addEventListener("change", () => onSelect(select.value));
+  container.innerHTML = "";
   wrapper.appendChild(select);
   container.appendChild(wrapper);
   return drivers;
@@ -210,6 +212,14 @@ export async function mountOwnerAttendance() {
       return;
     }
 
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+        <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+      </div>
+    `;
+
     let driverLogs = [];
     try {
       const logs = await apiFetch(
@@ -270,7 +280,14 @@ export async function mountOwnerAttendance() {
     `;
   };
 
-  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, id => {
+  selectorDiv.innerHTML = `
+    <div class="apple-card" style="padding: 20px; opacity: 0.6;">
+      <div style="height: 14px; width: 90px; background: currentColor; opacity: 0.1; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="height: 40px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 8px;"></div>
+    </div>
+  `;
+
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, (id) => {
     selectedDriverId = id;
     renderTable();
   });
@@ -313,9 +330,17 @@ export async function mountOwnerFuel() {
   const renderTable = async () => {
     tableDiv.innerHTML = "";
     if (!selectedDriverId) {
-      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view fuel records.</p></div>`;
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view attendance records.</p></div>`;
       return;
     }
+
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+        <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+      </div>
+    `;
 
     let driverLogs = [];
     try {
@@ -381,7 +406,14 @@ export async function mountOwnerFuel() {
     `;
   };
 
-  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, id => {
+  selectorDiv.innerHTML = `
+    <div class="apple-card" style="padding: 20px; opacity: 0.6;">
+      <div style="height: 14px; width: 90px; background: currentColor; opacity: 0.1; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="height: 40px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 8px;"></div>
+    </div>
+  `;
+
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, (id) => {
     selectedDriverId = id;
     renderTable();
   });

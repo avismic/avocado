@@ -20,7 +20,11 @@ export async function mountSeeDrivers() {
       </header>
 
       <div id="drivers-list-container">
-        <div class="apple-card empty-card"><p class="empty-state">Loading drivers...</p></div>
+        <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+          <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+          <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+          <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+        </div>
       </div>
     </section>
   `;

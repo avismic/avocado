@@ -1,13 +1,13 @@
-import '../../css/global.css';
-import './add-driver.css';
-import { logout, getUser } from '../../js/auth.js';
-import { navigate } from '../../js/router.js';
-import { apiFetch } from '../../js/utils/api.js';
-import { showModal } from '../shared/modal.js';
+import "../../css/global.css";
+import "./add-driver.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { showModal } from "../shared/modal.js";
 
 export function mountAddDriver() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
 
   app.innerHTML = `
     <section class="owner-page">
@@ -43,41 +43,56 @@ export function mountAddDriver() {
     </section>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('#owner-dashboard'));
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
 
-  const form = document.getElementById('add-driver-form');
-  form.addEventListener('submit', async (e) => {
+  const form = document.getElementById("add-driver-form");
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fullName = form.fullName.value.trim();
     const username = form.username.value.trim();
     const password = form.password.value.trim();
 
     if (!fullName || !username || !password) {
-      showModal({ title: 'Validation Error', message: 'All fields are required.', primaryBtnText: 'OK' });
+      showModal({
+        title: "Validation Error",
+        message: "All fields are required.",
+        primaryBtnText: "OK",
+      });
       return;
     }
 
+    const submitBtn = form.querySelector(".submit-btn");
+    const originalBtnText = submitBtn.textContent;
+
     try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating Driver...";
+      form.style.opacity = "0.7";
+
       const owner = getUser();
-      await apiFetch('/api/drivers', {
-        method: 'POST',
+      await apiFetch("/api/drivers", {
+        method: "POST",
         body: JSON.stringify({
           full_name: fullName,
           username: username,
           password: password,
-          owner_id: owner?.id
-        })
+          owner_id: owner?.id,
+        }),
       });
 
       showModal({
-        title: 'Driver Created',
+        title: "Driver Created",
         message: `Driver account for ${fullName} has been successfully created.`,
-        primaryBtnText: 'Back to Dashboard',
-        primaryBtnCallback: () => navigate('#owner-dashboard')
+        primaryBtnText: "Back to Dashboard",
+        primaryBtnCallback: () => navigate("#owner-dashboard"),
       });
     } catch (err) {
-      showModal({ title: 'Error', message: err.message, primaryBtnText: 'OK' });
+      showModal({ title: "Error", message: err.message, primaryBtnText: "OK" });
     }
   });
 }
