@@ -1,4 +1,3 @@
-// Service Worker for Fleet Manager PWA
 const CACHE_NAME = 'fleet-manager-v1';
 const CORE_ASSETS = [
   '/',
@@ -37,7 +36,11 @@ self.addEventListener('fetch', (event) => {
   const isApi = url.pathname.startsWith('/api/');
 
   if (isApi) {
-    // Network First for API calls
+    if (request.method !== 'GET') {
+      event.respondWith(fetch(request));
+      return;
+    }
+
     event.respondWith(
       fetch(request)
         .then(networkRes => {
@@ -47,7 +50,6 @@ self.addEventListener('fetch', (event) => {
         .catch(() => caches.match(request))
     );
   } else {
-    // Cache First for static assets
     event.respondWith(
       caches.match(request).then(cached => cached || fetch(request))
     );
