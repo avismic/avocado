@@ -1,3 +1,5 @@
+// path: js/router.js
+
 import { isAuthenticated, getUser } from "./auth.js";
 
 const routes = new Map();
@@ -14,11 +16,13 @@ function resolveTarget(hash = "") {
   }
   const user = getUser();
   if (!user) return { hash: "#login" };
+
   const roleDash = {
     admin: "#admin-dashboard",
     driver: "#driver-dashboard",
     owner: "#owner-dashboard",
   };
+
   const adminOnly = ["admin-dashboard", "admin-add-owner", "admin-see-owners"];
   const driverOnly = [
     "driver-dashboard",
@@ -32,16 +36,17 @@ function resolveTarget(hash = "") {
     "owner-add-driver",
     "owner-see-drivers",
   ];
+
   if (adminOnly.includes(cleanHash) && user.role !== "admin") {
     return { hash: "#admin-dashboard" };
   }
   if (driverOnly.includes(cleanHash) && user.role !== "driver") {
     return { hash: "#driver-dashboard" };
   }
-
   if (ownerOnly.includes(cleanHash) && user.role !== "owner") {
     return { hash: "#owner-dashboard" };
   }
+
   if (
     (adminOnly.includes(cleanHash) && user.role === "admin") ||
     (driverOnly.includes(cleanHash) && user.role === "driver") ||
@@ -59,14 +64,19 @@ export function navigate(targetHash) {
       window.location &&
       window.location.hash) ||
     "";
+
   const resolved = resolveTarget(targetHash || currentHash);
+
   if (
     typeof window !== "undefined" &&
     window.location &&
     resolved.hash !== window.location.hash
   ) {
-    window.location.replace(resolved.hash);
+    // FIX: Use simple assignment to push a new entry to the history stack,
+    // rather than .replace() which overwrites the current history entry.
+    window.location.hash = resolved.hash;
   } else {
+    // If we are already on the resolved hash, just force the handler to run
     handleHashChange();
   }
 }
@@ -81,6 +91,13 @@ function handleHashChange() {
         window.location.hash) ||
       "";
     const resolved = resolveTarget(currentHash);
+
+    // If the URL isn't exactly what it should be (e.g., unauthorized access attempt),
+    // correct it silently without triggering another immediate history push to avoid loops.
+    if (currentHash !== resolved.hash && currentHash !== "") {
+      window.history.replaceState(null, "", resolved.hash);
+    }
+
     const clean = resolved.hash.replace(/^#/, "");
     const handler = routes.get(clean);
     if (handler) {
