@@ -1,17 +1,16 @@
-import '../../css/global.css';
-import './fuel.css';
-import { getDriverLocation } from '../../js/utils/geo.js';
-import { getUser } from '../../js/auth.js';
-import { showModal } from '../../features/shared/modal.js';
-import { navigate } from '../../js/router.js';
-import { queueOfflineRequest } from '../../js/utils/sync.js';
-import { apiFetch } from '../../js/utils/api.js';
-import { _renderHistory, _loadLogs, _saveLogs, _formatDate } from './fuel.js';
-
+import "../../css/global.css";
+import "./fuel.css";
+import { getDriverLocation } from "../../js/utils/geo.js";
+import { getUser } from "../../js/auth.js";
+import { showModal } from "../../features/shared/modal.js";
+import { navigate } from "../../js/router.js";
+import { queueOfflineRequest } from "../../js/utils/sync.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { _renderHistory, _loadLogs, _saveLogs, _formatDate } from "./fuel.js";
 
 export function mountFuelPage() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
 
   app.innerHTML = `
     <section class="fuel-page">
@@ -58,27 +57,37 @@ export function mountFuelPage() {
     </section>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('#driver-dashboard'));
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#driver-dashboard"));
 
-  const form = document.getElementById('fuel-form');
-  form.addEventListener('submit', async (e) => {
+  const form = document.getElementById("fuel-form");
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const odometer = parseFloat(form.odometer.value);
     const amount = parseFloat(form.amount.value);
 
     if (isNaN(odometer) || odometer <= 0) {
-      showModal({ title: 'Invalid Input', message: 'Odometer must be a positive number.', primaryBtnText: 'OK' });
+      showModal({
+        title: "Invalid Input",
+        message: "Odometer must be a positive number.",
+        primaryBtnText: "OK",
+      });
       return;
     }
     if (isNaN(amount) || amount <= 0) {
-      showModal({ title: 'Invalid Input', message: 'Amount spent must be a positive number.', primaryBtnText: 'OK' });
+      showModal({
+        title: "Invalid Input",
+        message: "Amount spent must be a positive number.",
+        primaryBtnText: "OK",
+      });
       return;
     }
 
     try {
       const { latitude, longitude, timestamp } = await getDriverLocation();
       const user = getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error("User not authenticated");
 
       const record = {
         id: crypto.randomUUID(),
@@ -89,16 +98,23 @@ export function mountFuelPage() {
         liters: null,
         latitude,
         longitude,
-        timestamp
+        timestamp,
       };
+
+      // Inside features/fuel/fuel-page.js
 
       let isOffline = false;
 
       try {
-        await apiFetch('/api/fuel', {
-          method: 'POST',
-          body: JSON.stringify(record)
+        const response = await apiFetch("/api/fuel", {
+          method: "POST",
+          body: JSON.stringify(record),
         });
+
+        // Capture the address returned from the server and update the record
+        if (response && response.address) {
+          record.address = response.address;
+        }
       } catch (err) {
         console.error("API error:", err);
         if (err.isNetworkError) {
@@ -109,7 +125,7 @@ export function mountFuelPage() {
       }
 
       if (isOffline) {
-        queueOfflineRequest('fuel', record);
+        queueOfflineRequest("fuel", record);
       }
 
       const logs = _loadLogs();
@@ -120,17 +136,21 @@ export function mountFuelPage() {
       _renderHistory();
 
       showModal({
-        title: 'Fuel Logged',
-        message: !isOffline ? 'Fuel refill recorded successfully!' : 'Saved offline. Will sync when back online.',
-        primaryBtnText: 'OK',
+        title: "Fuel Logged",
+        message: !isOffline
+          ? "Fuel refill recorded successfully!"
+          : "Saved offline. Will sync when back online.",
+        primaryBtnText: "OK",
         primaryBtnCallback: () => {},
-        secondaryBtnText: 'View History',
+        secondaryBtnText: "View History",
         secondaryBtnCallback: () => {
-          document.getElementById('history-body')?.scrollIntoView({ behavior: 'smooth' });
-        }
+          document
+            .getElementById("history-body")
+            ?.scrollIntoView({ behavior: "smooth" });
+        },
       });
     } catch (err) {
-      showModal({ title: 'Error', message: err.message, primaryBtnText: 'OK' });
+      showModal({ title: "Error", message: err.message, primaryBtnText: "OK" });
     }
   });
 

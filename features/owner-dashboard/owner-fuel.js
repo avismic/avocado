@@ -76,15 +76,18 @@ export async function mountOwnerFuel() {
     const rows = driverLogs
       .sort((a, b) => b.timestamp - a.timestamp)
       .map((log) => {
-        const d = new Date(log.timestamp);
-        const date = d.toISOString().split("T")[0];
+        const d = new Date(Number(log.timestamp));
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const date = `${year}-${month}-${day}`;
         const time = d.toLocaleTimeString(undefined, {
           hour: "numeric",
           minute: "2-digit",
         });
         const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
         const lng = log.longitude ? Number(log.longitude).toFixed(4) : "0.0000";
-        const loc = `${lat}, ${lng}`;
+        const loc = log.address || `${lat}, ${lng}`;
         const odo = log.odometer_reading ?? log.odometer;
         const amt = log.amount_spent ?? log.cost;
         return `
@@ -133,8 +136,11 @@ export async function mountOwnerFuel() {
         let csvContent =
           "data:text/csv;charset=utf-8,Driver,Date & Time,Odometer,Amount,Location\n";
         driverLogs.forEach((log) => {
-          const d = new Date(log.timestamp);
-          const date = d.toISOString().split("T")[0];
+          const d = new Date(Number(log.timestamp));
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const date = `${year}-${month}-${day}`;
           const time = d.toLocaleTimeString(undefined, {
             hour: "numeric",
             minute: "2-digit",
@@ -143,7 +149,7 @@ export async function mountOwnerFuel() {
           const lng = log.longitude
             ? Number(log.longitude).toFixed(4)
             : "0.0000";
-          const loc = `"${lat}, ${lng}"`;
+          const loc = `"${log.address || `${lat}, ${lng}`}"`;
           const odo = log.odometer_reading ?? log.odometer;
           const amt = Number(log.amount_spent ?? log.cost ?? 0).toFixed(2);
           csvContent += `"${driverName}","${date} ${time}","${odo} km","$${amt}",${loc}\n`;

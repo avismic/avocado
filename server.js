@@ -114,45 +114,6 @@ app.post("/api/attendance", async (req, res) => {
   }
 });
 
-app.post("/api/fuel", async (req, res) => {
-  try {
-    const {
-      id,
-      driver_id,
-      liters,
-      cost,
-      amount_spent,
-      odometer,
-      odometer_reading,
-      latitude,
-      longitude,
-      timestamp,
-    } = req.body;
-
-    const finalCost = cost ?? amount_spent;
-    const finalOdometer = odometer ?? odometer_reading;
-
-    await sql`
-      INSERT INTO fuel_logs (id, driver_id, liters, cost, odometer, latitude, longitude, timestamp)
-      VALUES (
-        ${id},
-        ${driver_id},
-        ${liters ?? null},
-        ${finalCost},
-        ${finalOdometer},
-        ${latitude},
-        ${longitude},
-        ${Number(timestamp)}
-      )
-    `;
-
-    res.status(200).json({ success: true, message: "Fuel log recorded" });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.post("/api/drivers", async (req, res) => {
   try {
     const { username, password, full_name, owner_id } = req.body;
@@ -324,6 +285,82 @@ app.get("/api/attendance", async (req, res) => {
       logs = await sql`
         SELECT id, driver_id, latitude, longitude, address, timestamp 
         FROM attendance_logs 
+        ORDER BY timestamp DESC
+      `;
+    }
+    res.status(200).json(logs);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/fuel", async (req, res) => {
+  try {
+    const {
+      id,
+      driver_id,
+      liters,
+      cost,
+      amount_spent,
+      odometer,
+      odometer_reading,
+      latitude,
+      longitude,
+      timestamp,
+    } = req.body;
+
+    const finalCost = cost ?? amount_spent;
+    const finalOdometer = odometer ?? odometer_reading;
+
+    let address = null;
+    try {
+      if (latitude && longitude) {
+        address = await getAddressFromCoords(latitude, longitude);
+      }
+    } catch (err) {
+      address = null;
+    }
+
+    await sql`
+      INSERT INTO fuel_logs (id, driver_id, liters, cost, odometer, latitude, longitude, address, timestamp)
+      VALUES (
+        ${id},
+        ${driver_id},
+        ${liters ?? null},
+        ${finalCost},
+        ${finalOdometer},
+        ${latitude},
+        ${longitude},
+        ${address},
+        ${Number(timestamp)}
+      )
+    `;
+
+    res
+      .status(200)
+      .json({ success: true, message: "Fuel log recorded", address });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/fuel", async (req, res) => {
+  try {
+    const { driver_id } = req.query;
+    let logs;
+    if (driver_id) {
+      logs = await sql`
+        SELECT id, driver_id, liters, cost, odometer, latitude, longitude, address, timestamp 
+        FROM fuel_logs 
+        WHERE driver_id = ${driver_id} 
+        ORDER BY timestamp DESC
+      `;
+    } else {
+      logs = await sql`
+        SELECT id, driver_id, liters, cost, odometer, latitude, longitude, address, timestamp 
+        FROM fuel_logs 
         ORDER BY timestamp DESC
       `;
     }
