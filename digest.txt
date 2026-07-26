@@ -14,6 +14,10 @@ Directory structure:
     ├── db/
     │   └── schema.sql
     ├── features/
+    │   ├── admin/
+    │   │   ├── add-owner.js
+    │   │   ├── admin-dashboard.js
+    │   │   └── see-owners.js
     │   ├── attendance/
     │   │   ├── attendance-view.js
     │   │   ├── attendance.css
@@ -22,14 +26,23 @@ Directory structure:
     │   │   ├── driver-dashboard.css
     │   │   └── driver-dashboard.js
     │   ├── fuel/
+    │   │   ├── fuel-page.js
     │   │   ├── fuel.css
     │   │   └── fuel.js
     │   ├── login/
     │   │   ├── login.css
     │   │   └── login.js
     │   ├── owner-dashboard/
+    │   │   ├── add-driver.css
+    │   │   ├── add-driver.js
+    │   │   ├── load-drivers.js
+    │   │   ├── owner-attendance.js
     │   │   ├── owner-dashboard.css
-    │   │   └── owner-dashboard.js
+    │   │   ├── owner-dashboard.js
+    │   │   ├── owner-fuel.js
+    │   │   ├── render-driver-selector.js
+    │   │   ├── see-drivers.css
+    │   │   └── see-drivers.js
     │   └── shared/
     │       ├── modal.css
     │       └── modal.js
@@ -52,7 +65,287 @@ Directory structure:
 ================================================
 FILE: README.md
 ================================================
-# avocado
+# 🚛 Fleet Management PWA
+
+A modern **Progressive Web Application (PWA)** for fleet management, allowing drivers and fleet owners to efficiently manage attendance, fuel logs, and fleet operations from any device.
+
+Built with **Vanilla JavaScript, Vite, Express.js, and Neon PostgreSQL**, the application supports offline functionality, location tracking, and role-based dashboards. :contentReference[oaicite:0]{index=0}
+
+---
+
+## ✨ Features
+
+### Driver
+
+- 🔐 Secure login
+- 📍 GPS-based attendance marking
+- ⛽ Fuel logging
+- 📊 Attendance history
+- 💾 Offline support with automatic synchronization
+- 📱 Installable Progressive Web App
+
+### Fleet Owner
+
+- 👥 Owner dashboard
+- 📈 View driver attendance
+- ⛽ View driver fuel logs
+- 📊 Fleet monitoring
+
+### General
+
+- Progressive Web App (PWA)
+- Offline caching
+- Service Worker support
+- Responsive Apple-inspired UI
+- Role-based authentication
+- REST API backend
+- PostgreSQL database
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- Vanilla JavaScript (ES Modules)
+- HTML5
+- CSS3
+- Vite
+
+## Backend
+
+- Node.js
+- Express.js
+
+## Database
+
+- Neon PostgreSQL
+
+## Testing
+
+- Vitest
+- JSDOM
+
+---
+
+# 📁 Project Structure
+
+```
+Fleet-Management-PWA
+│
+├── css/
+├── db/
+├── features/
+│   ├── attendance/
+│   ├── driver-dashboard/
+│   ├── fuel/
+│   ├── login/
+│   ├── owner-dashboard/
+│   └── shared/
+│
+├── js/
+│   ├── utils/
+│   ├── auth.js
+│   ├── router.js
+│   └── app.js
+│
+├── tests/
+│
+├── server.js
+├── manifest.json
+├── sw.js
+└── package.json
+```
+
+---
+
+# 🚀 Installation
+
+Clone the repository
+
+```bash
+git clone <repository-url>
+```
+
+Move into the project
+
+```bash
+cd Fleet-Management-PWA
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+# ⚙️ Environment Variables
+
+Create a `.env` file.
+
+```env
+DATABASE_URL=your_neon_database_url
+```
+
+or
+
+```env
+VITE_NEON_DATABASE_URL=your_database_url
+```
+
+---
+
+# ▶️ Running the Project
+
+### Start the frontend
+
+```bash
+npm run dev
+```
+
+### Start the backend
+
+```bash
+node server.js
+```
+
+The frontend runs on Vite while the backend serves the REST API.
+
+---
+
+# 🗄 Database
+
+Run the schema:
+
+```sql
+db/schema.sql
+```
+
+The schema creates:
+
+- Users
+- Attendance Logs
+- Fuel Logs
+
+It also inserts demo users for development.
+
+---
+
+# 👤 Demo Accounts
+
+Driver
+
+```
+Username: driver1
+Password: driverpw
+```
+
+Owner
+
+```
+Username: owner1
+Password: ownerpw
+```
+
+---
+
+# 📡 API Endpoints
+
+## Authentication
+
+```
+POST /api/auth/login
+```
+
+---
+
+## Attendance
+
+```
+POST /api/attendance
+```
+
+---
+
+## Fuel
+
+```
+POST /api/fuel
+```
+
+---
+
+# 📱 Progressive Web App
+
+The application supports:
+
+- Installable application
+- Offline mode
+- Local caching
+- Background synchronization
+- Automatic request retry when back online
+
+---
+
+# 🧪 Testing
+
+Run all tests:
+
+```bash
+npm test
+```
+
+---
+
+# 🚀 Deployment
+
+Frontend can be deployed using any static hosting service.
+
+Backend requires:
+
+- Node.js
+- Express
+- PostgreSQL (Neon)
+
+---
+
+# 📸 Screens
+
+- Login
+- Driver Dashboard
+- Attendance
+- Fuel Log
+- Owner Dashboard
+- Attendance History
+
+---
+
+# 📌 Future Improvements
+
+- JWT authentication
+- Password hashing (bcrypt)
+- Driver profile management
+- Vehicle management
+- Route tracking
+- Analytics dashboard
+- Push notifications
+- Image upload for fuel receipts
+- Export reports
+- Multi-company support
+
+---
+
+# 👨‍💻 Authors
+
+Developed as a Fleet Management Progressive Web Application using modern web technologies.
+
+---
+
+# 📄 License
+
+This project is developed for educational purposes and may be extended for production use.
 
 
 
@@ -64,9 +357,10 @@ FILE: index.html
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fleet Management PWA</title>
+  <title>Avocado</title>
 
   <link rel="stylesheet" href="/css/global.css" />
+  <link rel="icon" type="image/svg+xml" href="/icons/gemini-svg.svg">
 </head>
 <body>
   <div id="app"></div>
@@ -251,6 +545,160 @@ app.post("/api/fuel", async (req, res) => {
     `;
 
     res.status(200).json({ success: true, message: "Fuel log recorded" });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/drivers", async (req, res) => {
+  try {
+    const { username, password, full_name, owner_id } = req.body;
+
+    if (!username || !password || !full_name) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const existing = await sql`
+      SELECT id FROM users WHERE username = ${username}
+    `;
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Username already taken" });
+    }
+
+    const newDriver = await sql`
+      INSERT INTO users (username, password_hash, full_name, role, owner_id)
+      VALUES (${username}, ${password}, ${full_name}, 'driver', ${owner_id ?? null})
+      RETURNING id, username, full_name, role
+    `;
+
+    res.status(201).json(newDriver[0]);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/drivers", async (req, res) => {
+  try {
+    const { owner_id } = req.query;
+
+    let drivers;
+    if (owner_id) {
+      drivers = await sql`
+        SELECT id, username, full_name, role 
+        FROM users 
+        WHERE role = 'driver' AND owner_id = ${owner_id}
+      `;
+    } else {
+      drivers = await sql`
+        SELECT id, username, full_name, role 
+        FROM users 
+        WHERE role = 'driver'
+      `;
+    }
+
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/drivers/details", async (req, res) => {
+  try {
+    const { owner_id } = req.query;
+    if (!owner_id) {
+      return res.status(400).json({ error: "owner_id is required" });
+    }
+
+    const drivers = await sql`
+      SELECT 
+        u.id,
+        u.full_name,
+        u.username,
+        u.password_hash AS password,
+        COALESCE(f.total_fuel, 0) AS total_fuel_spent,
+        a.last_attendance_time,
+        a.last_latitude,
+        a.last_longitude
+      FROM users u
+      LEFT JOIN (
+        SELECT 
+          driver_id, 
+          SUM(cost) AS total_fuel
+        FROM fuel_logs
+        GROUP BY driver_id
+      ) f ON u.id = f.driver_id
+      LEFT JOIN (
+        SELECT DISTINCT ON (driver_id)
+          driver_id,
+          timestamp AS last_attendance_time,
+          latitude AS last_latitude,
+          longitude AS last_longitude
+        FROM attendance_logs
+        ORDER BY driver_id, timestamp DESC
+      ) a ON u.id = a.driver_id
+      WHERE u.role = 'driver' AND u.owner_id = ${owner_id}
+      ORDER BY u.full_name ASC
+    `;
+
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error("Error fetching driver details:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/admin/add-owner", async (req, res) => {
+  try {
+    const { full_name, username, password } = req.body;
+    if (!full_name || !username || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const [newOwner] = await sql`
+      INSERT INTO users (full_name, username, password_hash, role)
+      VALUES (${full_name}, ${username}, ${password}, 'owner')
+      RETURNING id, full_name, username, role
+    `;
+
+    res.status(201).json(newOwner);
+  } catch (error) {
+    console.error("Error adding owner:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/admin/owners", async (req, res) => {
+  try {
+    const owners = await sql`
+      SELECT id, full_name, username, password_hash AS password 
+      FROM users 
+      WHERE role = 'owner'
+    `;
+    res.json(owners);
+  } catch (error) {
+    console.error("Error fetching owners:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete("/api/drivers/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await sql`
+      DELETE FROM users WHERE id = ${id} AND role = 'driver'
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Driver deleted" });
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: error.message });
@@ -509,6 +957,247 @@ VALUES
   ('11111111-1111-1111-1111-111111111111', 'driver1', 'driverpw', 'Driver One', 'driver'),
   ('22222222-2222-2222-2222-222222222222', 'owner1', 'ownerpw', 'Owner One', 'owner')
 ON CONFLICT (username) DO NOTHING;
+
+
+
+================================================
+FILE: features/admin/add-owner.js
+================================================
+import '../../css/global.css';
+import { logout } from '../../js/auth.js';
+import { navigate } from '../../js/router.js';
+import { apiFetch } from '../../js/utils/api.js';
+
+export function mountAddOwner() {
+  const app = document.getElementById('app');
+  if (!app) throw new Error('Missing #app element');
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">System Administration</p>
+          <h2>Add Owner</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="apple-card" style="max-width: 500px; margin: 40px auto; padding: 24px;">
+        <h3>Register New Owner</h3>
+        <form id="add-owner-form" style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+          <div>
+            <label>Full Name</label>
+            <input type="text" id="owner-name" class="owner-select" required placeholder="e.g. John Doe" />
+          </div>
+          <div>
+            <label>Username</label>
+            <input type="text" id="owner-username" class="owner-select" required placeholder="e.g. johndoe" />
+          </div>
+          <div>
+            <label>Password</label>
+            <input type="password" id="owner-password" class="owner-select" required placeholder="••••••••" />
+          </div>
+          <button type="submit" class="btn-primary">Add Owner</button>
+        </form>
+        <div id="form-message" style="margin-top: 12px;"></div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('back-btn').addEventListener('click', () => navigate('#admin-dashboard'));
+  document.getElementById('logout-btn').addEventListener('click', () => logout());
+
+  const form = document.getElementById('add-owner-form');
+  const msgDiv = document.getElementById('form-message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const full_name = document.getElementById('owner-name').value.trim();
+    const username = document.getElementById('owner-username').value.trim();
+    const password = document.getElementById('owner-password').value.trim();
+
+    try {
+      await apiFetch('/api/admin/add-owner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name, username, password })
+      });
+
+      msgDiv.innerHTML = `<p style="color: green;">Owner created successfully!</p>`;
+      form.reset();
+    } catch (err) {
+      msgDiv.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+    }
+  });
+}
+
+
+================================================
+FILE: features/admin/admin-dashboard.js
+================================================
+import '../../css/global.css';
+import { logout } from '../../js/auth.js';
+import { navigate } from '../../js/router.js';
+
+export function mountAdminDashboard() {
+  const app = document.getElementById('app');
+  if (!app) throw new Error('Missing #app element');
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <div>
+          <p class="subtitle">System Administration</p>
+          <h2>Admin Dashboard</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="owner-tiles">
+        <div class="tile-card apple-card" id="admin-add-owner-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Add Owner</h3>
+            <p>Register new fleet owners in the system</p>
+          </div>
+        </div>
+
+        <div class="tile-card apple-card" id="admin-see-owners-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>See Owners</h3>
+            <p>View list of registered owners and their credentials</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document.getElementById('admin-add-owner-tile').addEventListener('click', () => navigate('#admin-add-owner'));
+  document.getElementById('admin-see-owners-tile').addEventListener('click', () => navigate('#admin-see-owners'));
+}
+
+
+================================================
+FILE: features/admin/see-owners.js
+================================================
+import "../../css/global.css";
+import { logout } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+
+export async function mountSeeOwners() {
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">System Administration</p>
+          <h2>Registered Owners</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="apple-card" style="max-width: 800px; margin: 40px auto; padding: 24px;">
+        <h3>Owner List</h3>
+        <div id="owners-list" style="margin-top: 16px;">
+          <p>Loading owners...</p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#admin-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+
+  const listDiv = document.getElementById("owners-list");
+  listDiv.innerHTML = `
+    <table style="width: 100%; border-collapse: collapse; text-align: left; opacity: 0.6;">
+      <thead>
+        <tr style="border-bottom: 1px solid #ddd;">
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+          <th style="padding: 12px;"><div style="height: 14px; width: 80px; background: currentColor; opacity: 0.1; border-radius: 4px;"></div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;"><div style="height: 14px; width: 140px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 120px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 100px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;"><div style="height: 14px; width: 110px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 130px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 90px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+        <tr>
+          <td style="padding: 12px;"><div style="height: 14px; width: 150px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 100px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+          <td style="padding: 12px;"><div style="height: 14px; width: 110px; background: currentColor; opacity: 0.05; border-radius: 4px;"></div></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  try {
+    const owners = await apiFetch("/api/admin/owners");
+    if (!owners || owners.length === 0) {
+      listDiv.innerHTML = "<p>No owners found.</p>";
+      return;
+    }
+
+    listDiv.innerHTML = `
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 1px solid #ddd;">
+            <th style="padding: 12px;">Name</th>
+            <th style="padding: 12px;">Username</th>
+            <th style="padding: 12px;">Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${owners
+            .map(
+              (o) => `
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;">${o.full_name}</td>
+              <td style="padding: 12px;">${o.username}</td>
+              <td style="padding: 12px;">${o.password}</td>
+            </tr>
+          `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    listDiv.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+  }
+}
 
 
 
@@ -790,6 +1479,149 @@ export function mountDriverDashboard() {
 
 
 ================================================
+FILE: features/fuel/fuel-page.js
+================================================
+import '../../css/global.css';
+import './fuel.css';
+import { getDriverLocation } from '../../js/utils/geo.js';
+import { getUser } from '../../js/auth.js';
+import { showModal } from '../../features/shared/modal.js';
+import { navigate } from '../../js/router.js';
+import { queueOfflineRequest } from '../../js/utils/sync.js';
+import { apiFetch } from '../../js/utils/api.js';
+import { _renderHistory, _loadLogs, _saveLogs, _formatDate } from './fuel.js';
+
+
+export function mountFuelPage() {
+  const app = document.getElementById('app');
+  if (!app) throw new Error('Missing #app element');
+
+  app.innerHTML = `
+    <section class="fuel-page">
+      <header class="fuel-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Management</p>
+          <h2>Fuel Log</h2>
+        </div>
+      </header>
+
+      <div class="fuel-form-card apple-card">
+        <form id="fuel-form" novalidate>
+          <div class="form-group">
+            <label for="odometer">Odometer Reading (km)</label>
+            <input type="number" step="0.01" id="odometer" name="odometer" placeholder="e.g. 14600" required />
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Amount Spent ($)</label>
+            <input type="number" step="0.01" id="amount" name="amount" placeholder="e.g. 1000" required />
+          </div>
+
+          <button type="submit" class="btn-primary fuel-submit">Log Fuel Refill</button>
+        </form>
+      </div>
+
+      <div class="fuel-history apple-card">
+        <h3>Refill History</h3>
+        <div class="table-wrapper">
+          <table class="fuel-history-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Odometer</th>
+                <th>Amount</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById('back-btn').addEventListener('click', () => navigate('#driver-dashboard'));
+
+  const form = document.getElementById('fuel-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const odometer = parseFloat(form.odometer.value);
+    const amount = parseFloat(form.amount.value);
+
+    if (isNaN(odometer) || odometer <= 0) {
+      showModal({ title: 'Invalid Input', message: 'Odometer must be a positive number.', primaryBtnText: 'OK' });
+      return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      showModal({ title: 'Invalid Input', message: 'Amount spent must be a positive number.', primaryBtnText: 'OK' });
+      return;
+    }
+
+    try {
+      const { latitude, longitude, timestamp } = await getDriverLocation();
+      const user = getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const record = {
+        id: crypto.randomUUID(),
+        driver_id: user.id,
+        odometer_reading: odometer,
+        amount_spent: amount,
+        cost: amount,
+        liters: null,
+        latitude,
+        longitude,
+        timestamp
+      };
+
+      let isOffline = false;
+
+      try {
+        await apiFetch('/api/fuel', {
+          method: 'POST',
+          body: JSON.stringify(record)
+        });
+      } catch (err) {
+        console.error("API error:", err);
+        if (err.isNetworkError) {
+          isOffline = true;
+        } else {
+          throw err;
+        }
+      }
+
+      if (isOffline) {
+        queueOfflineRequest('fuel', record);
+      }
+
+      const logs = _loadLogs();
+      logs.push(record);
+      _saveLogs(logs);
+
+      form.reset();
+      _renderHistory();
+
+      showModal({
+        title: 'Fuel Logged',
+        message: !isOffline ? 'Fuel refill recorded successfully!' : 'Saved offline. Will sync when back online.',
+        primaryBtnText: 'OK',
+        primaryBtnCallback: () => {},
+        secondaryBtnText: 'View History',
+        secondaryBtnCallback: () => {
+          document.getElementById('history-body')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    } catch (err) {
+      showModal({ title: 'Error', message: err.message, primaryBtnText: 'OK' });
+    }
+  });
+
+  _renderHistory();
+}
+
+
+================================================
 FILE: features/fuel/fuel.css
 ================================================
 .fuel-page {
@@ -943,7 +1775,65 @@ FILE: features/fuel/fuel.css
 ================================================
 FILE: features/fuel/fuel.js
 ================================================
-Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x90 in position 1121: character maps to <undefined>
+import '../../css/global.css';
+import './fuel.css';
+import { getDriverLocation } from '../../js/utils/geo.js';
+import { getUser } from '../../js/auth.js';
+import { showModal } from '../../features/shared/modal.js';
+import { navigate } from '../../js/router.js';
+import { queueOfflineRequest } from '../../js/utils/sync.js';
+import { apiFetch } from '../../js/utils/api.js';
+import { mountFuelPage } from './fuel-page.js';
+
+const FUEL_LOGS_KEY = 'fleet_fuel_logs';
+
+export function _loadLogs() {
+  const raw = localStorage.getItem(FUEL_LOGS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function _saveLogs(logs) {
+  localStorage.setItem(FUEL_LOGS_KEY, JSON.stringify(logs));
+}
+
+export function _formatDate(ts) {
+  const d = new Date(ts);
+  const date = d.toISOString().split('T')[0];
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  return { date, time };
+}
+
+export function _renderHistory() {
+  const tbody = document.getElementById('history-body');
+  if (!tbody) return;
+
+  const logs = _loadLogs().filter(l => l.driver_id === getUser()?.id);
+
+  if (logs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No fuel logs recorded yet.</td></tr>';
+    return;
+  }
+
+  const rows = logs
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .map(log => {
+      const { date, time } = _formatDate(log.timestamp);
+      const coord = `${log.latitude.toFixed(4)}, ${log.longitude.toFixed(4)}`;
+      const odo = log.odometer_reading ?? log.odometer;
+      const amt = log.amount_spent ?? log.cost;
+      return `
+        <tr>
+          <td><span class="log-date">${date}</span> <span class="log-time">${time}</span></td>
+          <td>${odo} km</td>
+          <td class="log-amount">$${amt.toFixed(2)}</td>
+          <td class="log-coord">${coord}</td>
+        </tr>
+      `;
+    })
+    .join('');
+
+  tbody.innerHTML = rows;
+}
 
 
 ================================================
@@ -1099,8 +1989,16 @@ export function mountLogin() {
     const password = form.password.value.trim();
 
     try {
-      await login(username, password);
-      navigate('#');
+      const session = await login(username, password);
+      const role = session?.user?.role;
+      
+      if (role === 'admin') {
+        navigate('#admin-dashboard');
+      } else if (role === 'owner') {
+        navigate('#owner-dashboard');
+      } else {
+        navigate('#driver-dashboard');
+      }
     } catch (err) {
       errDiv.textContent = err.message;
       errDiv.hidden = false;
@@ -1110,107 +2008,1076 @@ export function mountLogin() {
 
 
 ================================================
+FILE: features/owner-dashboard/add-driver.css
+================================================
+.add-driver-card {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+#add-driver-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.add-driver-card .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-driver-card label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #86868b);
+}
+
+.add-driver-card input {
+  background: var(--bg-main, #f5f5f7);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-primary, #1d1d1f);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-driver-card input:focus {
+  border-color: var(--accent-color, #0071e3);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.add-driver-card .submit-btn {
+  margin-top: 8px;
+  width: 100%;
+}
+
+
+================================================
+FILE: features/owner-dashboard/add-driver.js
+================================================
+import "../../css/global.css";
+import "./add-driver.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { showModal } from "../shared/modal.js";
+
+export function mountAddDriver() {
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Management</p>
+          <h2>Add New Driver</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="add-driver-card apple-card">
+        <form id="add-driver-form" novalidate>
+          <div class="form-group">
+            <label for="driver-name">Full Name</label>
+            <input type="text" id="driver-name" name="fullName" placeholder="e.g. John Doe" required />
+          </div>
+
+          <div class="form-group">
+            <label for="driver-username">Username</label>
+            <input type="text" id="driver-username" name="username" placeholder="e.g. driver_john" required />
+          </div>
+
+          <div class="form-group">
+            <label for="driver-password">Password</label>
+            <input type="password" id="driver-password" name="password" placeholder="Assign a password" required />
+          </div>
+
+          <button type="submit" class="btn-primary submit-btn">Create Driver Account</button>
+        </form>
+      </div>
+    </section>
+  `;
+
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+
+  const form = document.getElementById("add-driver-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fullName = form.fullName.value.trim();
+    const username = form.username.value.trim();
+    const password = form.password.value.trim();
+
+    if (!fullName || !username || !password) {
+      showModal({
+        title: "Validation Error",
+        message: "All fields are required.",
+        primaryBtnText: "OK",
+      });
+      return;
+    }
+
+    const submitBtn = form.querySelector(".submit-btn");
+    const originalBtnText = submitBtn.textContent;
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating Driver...";
+      form.style.opacity = "0.7";
+
+      const owner = getUser();
+      await apiFetch("/api/drivers", {
+        method: "POST",
+        body: JSON.stringify({
+          full_name: fullName,
+          username: username,
+          password: password,
+          owner_id: owner?.id,
+        }),
+      });
+
+      showModal({
+        title: "Driver Created",
+        message: `Driver account for ${fullName} has been successfully created.`,
+        primaryBtnText: "Back to Dashboard",
+        primaryBtnCallback: () => navigate("#owner-dashboard"),
+      });
+    } catch (err) {
+      showModal({ title: "Error", message: err.message, primaryBtnText: "OK" });
+    }
+  });
+}
+
+
+
+================================================
+FILE: features/owner-dashboard/load-drivers.js
+================================================
+import { apiFetch } from "../../js/utils/api.js";
+
+export async function _loadDrivers(ownerId) {
+  try {
+    const query = ownerId ? `?owner_id=${ownerId}` : "";
+    const drivers = await apiFetch(`/api/drivers${query}`);
+    if (Array.isArray(drivers)) return drivers;
+  } catch {}
+
+  const raw = localStorage.getItem("fleet_users");
+  if (raw) {
+    try {
+      const users = JSON.parse(raw);
+      return users.filter(
+        (u) => u.role === "driver" && (!ownerId || u.owner_id === ownerId),
+      );
+    } catch {}
+  }
+
+  return [];
+}
+
+
+================================================
+FILE: features/owner-dashboard/owner-attendance.js
+================================================
+import "../../css/global.css";
+import "./owner-dashboard.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { _loadDrivers } from "./load-drivers.js";
+import { _renderDriverSelector } from "./render-driver-selector.js";
+
+export async function mountOwnerAttendance() {
+  const app = document.getElementById("app");
+  const user = getUser();
+  const ownerId = user?.id;
+  if (!app) throw new Error("Missing #app element");
+
+  let selectedDriverId = "";
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Driver Insight</p>
+          <h2>Attendance Overview</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div id="selector-container"></div>
+      <div id="table-container"></div>
+    </section>
+  `;
+
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+
+  const selectorDiv = document.getElementById("selector-container");
+  const tableDiv = document.getElementById("table-container");
+
+  const renderTable = async () => {
+    tableDiv.innerHTML = "";
+    if (!selectedDriverId) {
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view attendance records.</p></div>`;
+      return;
+    }
+
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+        <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+      </div>
+    `;
+
+    let driverLogs = [];
+    try {
+      const logs = await apiFetch(
+        `/api/attendance?driver_id=${selectedDriverId}`,
+      );
+      if (Array.isArray(logs)) driverLogs = logs;
+    } catch {
+      const raw = localStorage.getItem("fleet_attendance_logs");
+      const logs = raw ? JSON.parse(raw) : [];
+      driverLogs = logs.filter((l) => l.driver_id === selectedDriverId);
+    }
+
+    if (driverLogs.length === 0) {
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">No attendance records found for this driver.</p></div>`;
+      return;
+    }
+
+    const drivers = await _loadDrivers(ownerId);
+    const driverName =
+      drivers.find((d) => d.id === selectedDriverId)?.full_name ?? "Unknown";
+    const rows = driverLogs
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map((log) => {
+        const d = new Date(log.timestamp);
+        const date = d.toISOString().split("T")[0];
+        const time = d.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        const loc = `${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}`;
+        return `
+          <tr>
+            <td><span class="driver-badge">${driverName}</span></td>
+            <td>${date}</td>
+            <td class="log-time">${time}</td>
+            <td class="log-coord">${loc}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-attendance-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table class="owner-table">
+            <thead>
+              <tr>
+                <th>Driver</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const downloadBtn = tableDiv.querySelector("#download-attendance-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent =
+          "data:text/csv;charset=utf-8,Driver,Date,Time,Location\n";
+        driverLogs.forEach((log) => {
+          const d = new Date(log.timestamp);
+          const date = d.toISOString().split("T")[0];
+          const time = d.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          const loc = `"${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}"`;
+          csvContent += `"${driverName}","${date}","${time}",${loc}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute(
+          "download",
+          `attendance_${driverName.replace(/\s+/g, "_")}.csv`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+  };
+
+  selectorDiv.innerHTML = `
+    <div class="apple-card" style="padding: 20px; opacity: 0.6;">
+      <div style="height: 14px; width: 90px; background: currentColor; opacity: 0.1; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="height: 40px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 8px;"></div>
+    </div>
+  `;
+
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, (id) => {
+    selectedDriverId = id;
+    renderTable();
+  });
+}
+
+
+================================================
 FILE: features/owner-dashboard/owner-dashboard.css
 ================================================
-/* Owner dashboard â€“ dark glass UI */
 .owner-page {
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text-primary);
-  padding: 1rem 2rem;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
-/* Header */
 .owner-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--surface-border);
-}
-.owner-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-}
-.logout-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-/* Tile container */
+.owner-header .subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary, #86868b);
+  margin-bottom: 2px;
+}
+
+.owner-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary, #1d1d1f);
+}
+
+.owner-header .logout-btn {
+  margin-left: auto;
+}
+
 .owner-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
-.owner-tile {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  transition: transform 0.2s ease;
-}
-.owner-tile:hover { transform: translateY(-2px); }
-.owner-tile h3 { margin-top: 0.5rem; color: var(--text-primary); }
 
-/* Driver selector */
-.driver-selector {
-  margin: 1.5rem 0;
+.driver-selector-card {
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.driver-selector label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+
+.driver-selector-card label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #86868b);
 }
-.driver-selector select {
-  width: 100%;
-  padding: 0.5rem;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-}
-.driver-selector select:focus {
+
+.owner-select {
+  background: var(--bg-main, #f5f5f7);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-primary, #1d1d1f);
   outline: none;
-  border-color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Tables â€“ shared style */
+.owner-select:focus {
+  border-color: var(--accent-color, #0071e3);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.owner-table-card {
+  padding: 24px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
 .owner-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-}
-.owner-table th,
-.owner-table td {
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid var(--surface-border);
   text-align: left;
+  font-size: 14px;
 }
-.owner-table th { background: var(--surface); }
-.owner-table tbody tr:hover { background: rgba(255,255,255,0.05); }
 
-/* Emptyâ€‘state */
-.empty-state {
-  margin-top: 2rem;
+.owner-table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #86868b);
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+}
+
+.owner-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  color: var(--text-primary, #1d1d1f);
+}
+
+.owner-table tr:last-child td {
+  border-bottom: none;
+}
+
+.driver-badge {
+  font-weight: 600;
+  color: var(--text-primary, #1d1d1f);
+}
+
+.log-date {
+  font-weight: 500;
+}
+
+.log-time {
+  color: var(--text-secondary, #86868b);
+  font-size: 13px;
+}
+
+.log-amount {
+  font-weight: 600;
+}
+
+.log-coord {
+  color: var(--text-secondary, #86868b);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.empty-card {
+  padding: 32px 16px;
   text-align: center;
-  color: var(--text-secondary);
 }
 
+.empty-state {
+  color: var(--text-secondary, #86868b);
+  font-size: 14px;
+  margin: 0;
+}
 
 
 ================================================
 FILE: features/owner-dashboard/owner-dashboard.js
 ================================================
-Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x90 in position 4054: character maps to <undefined>
+import "../../css/global.css";
+import "./owner-dashboard.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { _loadDrivers } from "./load-drivers.js";
+import { _renderDriverSelector } from "./render-driver-selector.js";
+import { mountOwnerAttendance } from "./owner-attendance.js";
+
+export function mountOwnerDashboard() {
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <div>
+          <p class="subtitle">Overview</p>
+          <h2>Owner Dashboard</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="owner-tiles">
+        <div class="tile-card apple-card" id="owner-attendance-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8v4l3 3"></path>
+              <circle cx="12" cy="12" r="9"></circle>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Driver Attendance</h3>
+            <p>Track check-ins, timestamps, and live driver locations</p>
+          </div>
+        </div>
+
+        <div class="tile-card apple-card" id="owner-fuel-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="22" x2="15" y2="22"></line>
+              <line x1="4" y1="9" x2="14" y2="9"></line>
+              <path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path>
+              <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42l-2.82-2.82"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Driver Fuel Logs</h3>
+            <p>Review fuel expenses, odometer readings, and history</p>
+          </div>
+        </div>
+        <div class="tile-card apple-card" id="owner-add-driver-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Add Driver</h3>
+            <p>Register new drivers under your fleet management account</p>
+          </div>
+        </div>
+        <div class="tile-card apple-card" id="owner-see-drivers-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>See Drivers</h3>
+            <p>View registered drivers, credentials, last locations, and total expenses</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+  document
+    .getElementById("owner-attendance-tile")
+    .addEventListener("click", () => navigate("#owner-attendance"));
+  document
+    .getElementById("owner-fuel-tile")
+    .addEventListener("click", () => navigate("#owner-fuel"));
+  document
+    .getElementById("owner-add-driver-tile")
+    .addEventListener("click", () => navigate("#owner-add-driver"));
+  document
+    .getElementById("owner-see-drivers-tile")
+    .addEventListener("click", () => navigate("#owner-see-drivers"));
+}
+
+
+================================================
+FILE: features/owner-dashboard/owner-fuel.js
+================================================
+import "../../css/global.css";
+import "./owner-dashboard.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+import { _loadDrivers } from "./load-drivers.js";
+import { _renderDriverSelector } from "./render-driver-selector.js";
+
+export async function mountOwnerFuel() {
+  const app = document.getElementById("app");
+  const user = getUser();
+  const ownerId = user?.id;
+  if (!app) throw new Error("Missing #app element");
+
+  let selectedDriverId = "";
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Driver Insight</p>
+          <h2>Fuel Expense Overview</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div id="selector-container"></div>
+      <div id="table-container"></div>
+    </section>
+  `;
+
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+
+  const selectorDiv = document.getElementById("selector-container");
+  const tableDiv = document.getElementById("table-container");
+
+  const renderTable = async () => {
+    tableDiv.innerHTML = "";
+    if (!selectedDriverId) {
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view fuel records.</p></div>`;
+      return;
+    }
+
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+        <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+        <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+      </div>
+    `;
+
+    let driverLogs = [];
+    try {
+      const logs = await apiFetch(`/api/fuel?driver_id=${selectedDriverId}`);
+      if (Array.isArray(logs)) driverLogs = logs;
+    } catch {
+      const raw = localStorage.getItem("fleet_fuel_logs");
+      const logs = raw ? JSON.parse(raw) : [];
+      driverLogs = logs.filter((l) => l.driver_id === selectedDriverId);
+    }
+
+    if (driverLogs.length === 0) {
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">No fuel records found for this driver.</p></div>`;
+      return;
+    }
+
+    const drivers = await _loadDrivers(ownerId);
+    const driverName =
+      drivers.find((d) => d.id === selectedDriverId)?.full_name ?? "Unknown";
+    const rows = driverLogs
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map((log) => {
+        const d = new Date(log.timestamp);
+        const date = d.toISOString().split("T")[0];
+        const time = d.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
+        const lng = log.longitude ? Number(log.longitude).toFixed(4) : "0.0000";
+        const loc = `${lat}, ${lng}`;
+        const odo = log.odometer_reading ?? log.odometer;
+        const amt = log.amount_spent ?? log.cost;
+        return `
+          <tr>
+            <td><span class="driver-badge">${driverName}</span></td>
+            <td><span class="log-date">${date}</span> <span class="log-time">${time}</span></td>
+            <td>${odo} km</td>
+            <td class="log-amount">$${Number(amt).toFixed(2)}</td>
+            <td class="log-coord">${loc}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tableDiv.innerHTML = `
+      <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-fuel-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table class="owner-table">
+            <thead>
+              <tr>
+                <th>Driver</th>
+                <th>Date & Time</th>
+                <th>Odometer</th>
+                <th>Amount</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const downloadBtn = tableDiv.querySelector("#download-fuel-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent =
+          "data:text/csv;charset=utf-8,Driver,Date & Time,Odometer,Amount,Location\n";
+        driverLogs.forEach((log) => {
+          const d = new Date(log.timestamp);
+          const date = d.toISOString().split("T")[0];
+          const time = d.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
+          const lng = log.longitude
+            ? Number(log.longitude).toFixed(4)
+            : "0.0000";
+          const loc = `"${lat}, ${lng}"`;
+          const odo = log.odometer_reading ?? log.odometer;
+          const amt = Number(log.amount_spent ?? log.cost ?? 0).toFixed(2);
+          csvContent += `"${driverName}","${date} ${time}","${odo} km","$${amt}",${loc}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute(
+          "download",
+          `fuel_logs_${driverName.replace(/\s+/g, "_")}.csv`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+  };
+
+  selectorDiv.innerHTML = `
+    <div class="apple-card" style="padding: 20px; opacity: 0.6;">
+      <div style="height: 14px; width: 90px; background: currentColor; opacity: 0.1; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="height: 40px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 8px;"></div>
+    </div>
+  `;
+
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, (id) => {
+    selectedDriverId = id;
+    renderTable();
+  });
+}
+
+
+================================================
+FILE: features/owner-dashboard/render-driver-selector.js
+================================================
+import { navigate } from "../../js/router.js";
+import { _loadDrivers } from "./load-drivers.js";
+
+export async function _renderDriverSelector(container, selectedId, ownerId, onSelect) {
+  const drivers = await _loadDrivers(ownerId);
+
+  if (drivers.length === 0) {
+    container.innerHTML = `
+      <div class="apple-card empty-card" style="text-align: center; padding: 40px; margin-top: 20px;">
+        <h3>Please add drivers</h3>
+        <p class="empty-state">You haven't added any drivers yet. Please add drivers to view their records.</p>
+        <button class="btn-primary" id="go-add-driver-btn" style="margin-top: 16px; padding: 8px 16px;">Add Driver</button>
+      </div>
+    `;
+    document
+      .getElementById("go-add-driver-btn")
+      ?.addEventListener("click", () => navigate("#owner-add-driver"));
+    return drivers;
+  }
+  const wrapper = document.createElement("div");
+  wrapper.className = "driver-selector-card apple-card";
+
+  const label = document.createElement("label");
+  label.htmlFor = "driver-select";
+  label.textContent = "Select Driver";
+  wrapper.appendChild(label);
+
+  const select = document.createElement("select");
+  select.id = "driver-select";
+  select.className = "owner-select";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "-- Choose a driver --";
+  select.appendChild(placeholder);
+
+  drivers.forEach((driver) => {
+    const opt = document.createElement("option");
+    opt.value = driver.id;
+    opt.textContent = driver.full_name;
+    if (driver.id === selectedId) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener("change", () => onSelect(select.value));
+  container.innerHTML = "";
+  wrapper.appendChild(select);
+  container.appendChild(wrapper);
+  return drivers;
+}
+
+
+================================================
+FILE: features/owner-dashboard/see-drivers.css
+================================================
+.driver-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.driver-username {
+  font-size: 12px;
+  color: var(--text-secondary, #86868b);
+}
+
+.password-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.password-text {
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.btn-toggle-pwd {
+  background: transparent;
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--accent-color, #0071e3);
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-pwd:hover {
+  background: rgba(0, 113, 227, 0.08);
+}
+
+
+================================================
+FILE: features/owner-dashboard/see-drivers.js
+================================================
+import "../../css/global.css";
+import "./see-drivers.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
+
+export async function mountSeeDrivers() {
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
+
+  app.innerHTML = `
+    <section class="owner-page">
+      <header class="owner-header">
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Fleet Management</p>
+          <h2>Drivers Directory</h2>
+        </div>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div id="drivers-list-container">
+        <div class="apple-card owner-table-card" style="padding: 20px; opacity: 0.6;">
+          <div style="height: 24px; width: 100%; background: currentColor; opacity: 0.05; border-radius: 4px; margin-bottom: 12px;"></div>
+          <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px; margin-bottom: 8px;"></div>
+          <div style="height: 20px; width: 100%; background: currentColor; opacity: 0.03; border-radius: 4px;"></div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+
+  const container = document.getElementById("drivers-list-container");
+  const owner = getUser();
+
+  try {
+    const drivers = await apiFetch(
+      `/api/drivers/details?owner_id=${owner?.id}`,
+    );
+
+    if (!Array.isArray(drivers) || drivers.length === 0) {
+      container.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">No drivers registered under your account yet.</p></div>`;
+      return;
+    }
+
+    const rows = drivers
+      .map((driver) => {
+        const rawTime = driver.last_attendance_time
+          ? Number(driver.last_attendance_time)
+          : null;
+        const lastTime =
+          rawTime && !isNaN(rawTime)
+            ? new Date(rawTime).toLocaleString(undefined, {
+                dateStyle: "short",
+                timeStyle: "short",
+              })
+            : "N/A";
+
+        const lastLoc =
+          driver.last_latitude && driver.last_longitude
+            ? `${Number(driver.last_latitude).toFixed(4)}, ${Number(driver.last_longitude).toFixed(4)}`
+            : "N/A";
+
+        const fuelSpent = `$${Number(driver.total_fuel_spent).toFixed(2)}`;
+
+        return `
+        <tr data-driver-id="${driver.id}">
+          <td>
+            <div class="driver-info">
+              <strong>${driver.full_name}</strong>
+              <span class="driver-username">@${driver.username}</span>
+            </div>
+          </td>
+          <td>
+            <div class="password-cell">
+              <span class="password-text" data-password="${driver.password}">••••••••</span>
+              <button type="button" class="btn-toggle-pwd">Show</button>
+            </div>
+          </td>
+          <td><span class="log-coord">${lastLoc}</span></td>
+          <td><span class="log-amount">${fuelSpent}</span></td>
+          <td><span class="log-time">${lastTime}</span></td>
+          <td>
+            <button type="button" class="btn-secondary btn-delete-driver" data-id="${driver.id}" title="Delete Driver" style="color: #ff3b30; border-color: #ff3b30; padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      `;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-drivers-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table class="owner-table">
+            <thead>
+              <tr>
+                <th>Driver Name</th>
+                <th>Password</th>
+                <th>Last Location</th>
+                <th>Total Fuel Spent</th>
+                <th>Last Attendance</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const downloadBtn = container.querySelector("#download-drivers-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent = "data:text/csv;charset=utf-8,Driver Name,Username,Password,Last Location,Total Fuel Spent,Last Attendance\n";
+        drivers.forEach((driver) => {
+          const rawTime = driver.last_attendance_time ? Number(driver.last_attendance_time) : null;
+          const lastTime = rawTime && !isNaN(rawTime) ? new Date(rawTime).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }) : "N/A";
+          const lastLoc = driver.last_latitude && driver.last_longitude ? `"${Number(driver.last_latitude).toFixed(4)}, ${Number(driver.last_longitude).toFixed(4)}"` : "N/A";
+          const fuelSpent = `"$${Number(driver.total_fuel_spent).toFixed(2)}"`;
+          csvContent += `"${driver.full_name}","@${driver.username}","${driver.password}",${lastLoc},${fuelSpent},"${lastTime}"\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `drivers_directory.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    container.querySelectorAll(".btn-toggle-pwd").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const cell = e.target.closest(".password-cell");
+        const textSpan = cell.querySelector(".password-text");
+        const rawPwd = textSpan.getAttribute("data-password");
+
+        if (textSpan.textContent === "••••••••") {
+          textSpan.textContent = rawPwd;
+          e.target.textContent = "Hide";
+        } else {
+          textSpan.textContent = "••••••••";
+          e.target.textContent = "Show";
+        }
+      });
+    });
+
+    container.querySelectorAll(".btn-delete-driver").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const driverId = e.target.getAttribute("data-id");
+        if (!confirm("Are you sure you want to delete this driver?")) return;
+
+        try {
+          await apiFetch(`/api/drivers/${driverId}`, {
+            method: "DELETE",
+          });
+          const row = e.target.closest("tr");
+          row.remove();
+
+          if (container.querySelectorAll("tbody tr").length === 0) {
+            container.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">No drivers registered under your account yet.</p></div>`;
+          }
+        } catch (err) {
+          alert(`Failed to delete driver: ${err.message}`);
+        }
+      });
+    });
+  } catch (err) {
+    container.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Failed to load drivers: ${err.message}</p></div>`;
+  }
+}
 
 
 ================================================
@@ -1433,13 +3300,22 @@ import { mountLogin } from "../features/login/login.js";
 import { registerRoute, navigate } from "./router.js";
 import { mountDriverDashboard } from "../features/driver-dashboard/driver-dashboard.js";
 import { mountAttendanceHistory } from "../features/attendance/attendance-view.js";
-import { mountFuelPage } from "../features/fuel/fuel.js";
+import { mountFuelPage } from "../features/fuel/fuel-page.js";
 import {
-  mountOwnerDashboard,
-  mountOwnerAttendance,
-  mountOwnerFuel,
+  mountOwnerDashboard
 } from "../features/owner-dashboard/owner-dashboard.js";
+import { mountOwnerAttendance } from "../features/owner-dashboard/owner-attendance.js";
+import { mountOwnerFuel } from "../features/owner-dashboard/owner-fuel.js";
 import { isAuthenticated, getUser } from "./auth.js";
+import { mountAddDriver } from "../features/owner-dashboard/add-driver.js";
+import { mountSeeDrivers } from "../features/owner-dashboard/see-drivers.js";
+import { mountAdminDashboard } from "../features/admin/admin-dashboard.js";
+import { mountAddOwner } from "../features/admin/add-owner.js";
+import { mountSeeOwners } from "../features/admin/see-owners.js";
+
+registerRoute("admin-dashboard", mountAdminDashboard);
+registerRoute("admin-add-owner", mountAddOwner);
+registerRoute("admin-see-owners", mountSeeOwners);
 
 // Register driver routes
 // Register auth route
@@ -1452,6 +3328,8 @@ registerRoute("driver-fuel", mountFuelPage);
 registerRoute("owner-dashboard", mountOwnerDashboard);
 registerRoute("owner-attendance", mountOwnerAttendance);
 registerRoute("owner-fuel", mountOwnerFuel);
+registerRoute("owner-add-driver", mountAddDriver);
+registerRoute("owner-see-drivers", mountSeeDrivers);
 
 // Initial navigation based on auth state & role
 if (!isAuthenticated()) {
@@ -1462,31 +3340,34 @@ if (!isAuthenticated()) {
     navigate("#driver-dashboard");
   } else if (user?.role === "owner") {
     navigate("#owner-dashboard");
+  } else if (user?.role === "admin") {
+    navigate("#admin-dashboard");
   } else {
     navigate("#login");
   }
 }
 
 // ---- Service Worker registration (if supported) ----
-if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('ServiceWorker registered', reg.scope))
-      .catch(err => console.error('ServiceWorker registration failed:', err));
+if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => console.log("ServiceWorker registered", reg.scope))
+      .catch((err) => console.error("ServiceWorker registration failed:", err));
   });
 }
 
 // ---- Online event: flush any queued offline requests ----
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    console.log('Network restored â€“ flushing offline queue');
-    import('./utils/sync.js')
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    console.log("Network restored â€“ flushing offline queue");
+    import("./utils/sync.js")
       .then(({ flushOfflineQueue }) => {
         flushOfflineQueue()
-          .then(() => console.log('Offline queue flushed'))
-          .catch(err => console.error('Error flushing offline queue', err));
+          .then(() => console.log("Offline queue flushed"))
+          .catch((err) => console.error("Error flushing offline queue", err));
       })
-      .catch(err => console.error('Error importing sync utils:', err));
+      .catch((err) => console.error("Error importing sync utils:", err));
   });
 }
 
@@ -1499,7 +3380,13 @@ FILE: js/app_v2.js
 import { registerRoute, navigate } from "./router.js";
 import { isAuthenticated } from "./auth.js";
 import { mountLogin } from "../features/login/login.js";
+import { mountDriverDashboard } from "../features/driver-dashboard/driver-dashboard.js";
+import { mountOwnerDashboard } from "../features/owner-dashboard/owner-dashboard.js";
 
+// Register routes
+registerRoute("login", mountLogin);
+registerRoute("driver-dashboard", mountDriverDashboard);
+registerRoute("owner-dashboard", mountOwnerDashboard);
 // Simple placeholder dashboard renderers (real dashboards would live in their own feature folders)
 function mountDriverDashboard() {
   const app = document.getElementById("app");
@@ -1692,9 +3579,13 @@ function resolveTarget(hash = "") {
 
   // Roleâ€‘specific dashboard mapping
   const roleDash = {
+    admin: "#admin-dashboard",
     driver: "#driver-dashboard",
     owner: "#owner-dashboard",
   };
+
+  // Admin-only pages list
+  const adminOnly = ["admin-dashboard", "admin-add-owner", "admin-see-owners"];
 
   // Driverâ€‘only pages list
   const driverOnly = [
@@ -1704,8 +3595,16 @@ function resolveTarget(hash = "") {
   ];
 
   // Ownerâ€‘only pages list
-  const ownerOnly = ["owner-dashboard", "owner-attendance", "owner-fuel"];
-
+  const ownerOnly = [
+    "owner-dashboard",
+    "owner-attendance",
+    "owner-fuel",
+    "owner-add-driver",
+    "owner-see-drivers",
+  ];
+  if (adminOnly.includes(cleanHash) && user.role !== "admin") {
+    return { hash: "#admin-dashboard" };
+  }
   // Guard against accessing driverâ€‘only page when not driver
   if (driverOnly.includes(cleanHash) && user.role !== "driver") {
     return { hash: "#driver-dashboard" };
@@ -1717,13 +3616,14 @@ function resolveTarget(hash = "") {
   }
 
   // If valid hash for user's role, keep it
+  // If valid hash for user's role, keep it
   if (
+    (adminOnly.includes(cleanHash) && user.role === "admin") ||
     (driverOnly.includes(cleanHash) && user.role === "driver") ||
     (ownerOnly.includes(cleanHash) && user.role === "owner")
   ) {
     return { hash: `#${cleanHash}` };
   }
-
   // Default fallback â€“ send to appropriate dashboard based on role
   return { hash: roleDash[user.role] || "#login" };
 }
@@ -1732,9 +3632,17 @@ let isNavigating = false;
 
 /** Navigate to a hash (updates URL & triggers rendering) */
 export function navigate(targetHash) {
-  const currentHash = (typeof window !== "undefined" && window.location && window.location.hash) || "";
+  const currentHash =
+    (typeof window !== "undefined" &&
+      window.location &&
+      window.location.hash) ||
+    "";
   const resolved = resolveTarget(targetHash || currentHash);
-  if (typeof window !== "undefined" && window.location && resolved.hash !== window.location.hash) {
+  if (
+    typeof window !== "undefined" &&
+    window.location &&
+    resolved.hash !== window.location.hash
+  ) {
     window.location.replace(resolved.hash);
   } else {
     handleHashChange();
@@ -1746,7 +3654,11 @@ function handleHashChange() {
   if (isNavigating) return;
   isNavigating = true;
   try {
-    const currentHash = (typeof window !== "undefined" && window.location && window.location.hash) || "";
+    const currentHash =
+      (typeof window !== "undefined" &&
+        window.location &&
+        window.location.hash) ||
+      "";
     const resolved = resolveTarget(currentHash);
     const clean = resolved.hash.replace(/^#/, "");
 
