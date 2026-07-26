@@ -60,7 +60,9 @@
   color: var(--text-primary, #1d1d1f);
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .owner-select:focus {
@@ -136,4 +138,13 @@
   color: var(--text-secondary, #86868b);
   font-size: 14px;
   margin: 0;
+}
+
+@media (max-width: 768px) {
+  .owner-table-card {
+    width: 153%;
+    transform: scale(0.7);
+    transform-origin: top left;
+    margin-left: -4%;
+  }
 }

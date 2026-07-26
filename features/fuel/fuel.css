@@ -144,3 +144,12 @@
   color: var(--text-secondary);
   padding: 32px 16px !important;
 }
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    width: 153%;
+    transform: scale(0.7);
+    transform-origin: top left;
+    margin-left: -4%;
+  }
+}
