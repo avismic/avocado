@@ -1,0 +1,92 @@
+/* Owner dashboard – dark glass UI */
+.owner-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+  padding: 1rem 2rem;
+}
+
+/* Header */
+.owner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+.owner-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Tile container */
+.owner-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.owner-tile {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  transition: transform 0.2s ease;
+}
+.owner-tile:hover { transform: translateY(-2px); }
+.owner-tile h3 { margin-top: 0.5rem; color: var(--text-primary); }
+
+/* Driver selector */
+.driver-selector {
+  margin: 1.5rem 0;
+}
+.driver-selector label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+.driver-selector select {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+.driver-selector select:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+/* Tables – shared style */
+.owner-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.owner-table th,
+.owner-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--surface-border);
+  text-align: left;
+}
+.owner-table th { background: var(--surface); }
+.owner-table tbody tr:hover { background: rgba(255,255,255,0.05); }
+
+/* Empty‑state */
+.empty-state {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}

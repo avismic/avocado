@@ -1,0 +1,43 @@
+/* features/attendance/attendance.css */
+
+.attendance-view {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+  padding: 1rem 2rem;
+}
+
+.attendance-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--surface-border);
+  text-align: left;
+}
+
+.attendance-table th {
+  background: var(--surface);
+}
+
+.attendance-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}

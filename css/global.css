@@ -1,0 +1,70 @@
+/* Design Tokens */
+:root {
+  --bg: #0c0b0b;
+  --surface: rgba(255, 255, 255, 0.07);
+  --surface-border: rgba(255, 255, 255, 0.12);
+  --text-primary: #ffffff;
+  --text-secondary: #8e8e93;
+  --radius-lg: 18px;
+  --radius-sm: 12px;
+}
+
+/* Global Reset \u0026 Typography */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* iOS safe‑area padding for the body */
+body {
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+}
+
+/* Glassmorphism Utility */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+/* Button tactile feedback – Apple‑style press animation */
+button,
+input[type="button"],
+input[type="submit"] {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease-out,
+    background-color 0.2s;
+}
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active {
+  transform: scale(0.96);
+}
+
+/* Subtle hover for glass cards */
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* Focus outlines for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
