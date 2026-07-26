@@ -18,7 +18,7 @@ async function getAddressFromCoords(lat, lon) {
   if (!lat || !lon) return null;
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`,
       {
         headers: {
           "User-Agent": "FleetManagementApp/1.0",
@@ -30,13 +30,23 @@ async function getAddressFromCoords(lat, lon) {
     if (data && data.address) {
       const addr = data.address;
       const primary =
+        addr.road ||
         addr.suburb ||
         addr.neighbourhood ||
+        addr.residential ||
+        addr.quarter ||
+        addr.locality ||
+        addr.subdistrict ||
+        addr.county ||
+        addr.hamlet ||
         addr.village ||
+        "";
+      const secondary =
+        addr.city ||
         addr.town ||
         addr.city_district ||
+        addr.state_district ||
         "";
-      const secondary = addr.city || addr.state_district || addr.state || "";
       const parts = [primary, secondary].filter(Boolean);
       if (parts.length > 0) {
         return parts.join(", ");
