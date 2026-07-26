@@ -1,38 +1,43 @@
-import '../../css/global.css';
-import './owner-dashboard.css';
-import { logout } from '../../js/auth.js';
-import { navigate } from '../../js/router.js';
-import { apiFetch } from '../../js/utils/api.js';
+import "../../css/global.css";
+import "./owner-dashboard.css";
+import { logout, getUser } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
+import { apiFetch } from "../../js/utils/api.js";
 
-async function _loadDrivers() {
+async function _loadDrivers(ownerId) {
   try {
-    const drivers = await apiFetch('/api/drivers');
+    const query = ownerId ? `?owner_id=${ownerId}` : "";
+    const drivers = await apiFetch(`/api/drivers${query}`);
     if (Array.isArray(drivers)) return drivers;
-  } catch {
-  }
+  } catch {}
 
-  const raw = localStorage.getItem('fleet_users');
+  const raw = localStorage.getItem("fleet_users");
   if (raw) {
     try {
       const users = JSON.parse(raw);
-      return users.filter(u => u.role === 'driver');
-    } catch {
-    }
+      return users.filter(
+        (u) => u.role === "driver" && (!ownerId || u.owner_id === ownerId),
+      );
+    } catch {}
   }
 
-  return [
-    {
-      id: '11111111-1111-1111-1111-111111111111',
-      username: 'driver1',
-      full_name: 'Driver One',
-      role: 'driver'
-    }
-  ];
+  return [];
 }
 
-async function _renderDriverSelector(container, selectedId, onSelect) {
-  const drivers = await _loadDrivers();
+async function _renderDriverSelector(container, selectedId, ownerId, onSelect) {
+  const drivers = await _loadDrivers(ownerId);
 
+  if (drivers.length === 0) {
+    container.innerHTML = `
+      <div class="apple-card empty-card" style="text-align: center; padding: 40px; margin-top: 20px;">
+        <h3>Please add drivers</h3>
+        <p class="empty-state">You haven't added any drivers yet. Please add drivers to view their records.</p>
+        <button class="btn-primary" id="go-add-driver-btn" style="margin-top: 16px; padding: 8px 16px;">Add Driver</button>
+      </div>
+    `;
+    document.getElementById('go-add-driver-btn')?.addEventListener('click', () => navigate('#owner-add-driver'));
+    return drivers;
+  }
   const wrapper = document.createElement('div');
   wrapper.className = 'driver-selector-card apple-card';
 
@@ -64,10 +69,9 @@ async function _renderDriverSelector(container, selectedId, onSelect) {
   container.appendChild(wrapper);
   return drivers;
 }
-
 export function mountOwnerDashboard() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
 
   app.innerHTML = `
     <section class="owner-page">
@@ -139,21 +143,39 @@ export function mountOwnerDashboard() {
     </section>
   `;
 
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
-  document.getElementById('owner-attendance-tile').addEventListener('click', () => navigate('#owner-attendance'));
-  document.getElementById('owner-fuel-tile').addEventListener('click', () => navigate('#owner-fuel'));
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
-  document.getElementById('owner-attendance-tile').addEventListener('click', () => navigate('#owner-attendance'));
-  document.getElementById('owner-fuel-tile').addEventListener('click', () => navigate('#owner-fuel'));
-  document.getElementById('owner-add-driver-tile').addEventListener('click', () => navigate('#owner-add-driver'));
-  document.getElementById('owner-see-drivers-tile').addEventListener('click', () => navigate('#owner-see-drivers'));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+  document
+    .getElementById("owner-attendance-tile")
+    .addEventListener("click", () => navigate("#owner-attendance"));
+  document
+    .getElementById("owner-fuel-tile")
+    .addEventListener("click", () => navigate("#owner-fuel"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
+  document
+    .getElementById("owner-attendance-tile")
+    .addEventListener("click", () => navigate("#owner-attendance"));
+  document
+    .getElementById("owner-fuel-tile")
+    .addEventListener("click", () => navigate("#owner-fuel"));
+  document
+    .getElementById("owner-add-driver-tile")
+    .addEventListener("click", () => navigate("#owner-add-driver"));
+  document
+    .getElementById("owner-see-drivers-tile")
+    .addEventListener("click", () => navigate("#owner-see-drivers"));
 }
 
 export async function mountOwnerAttendance() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  const user = getUser();
+  const ownerId = user?.id;
+  if (!app) throw new Error("Missing #app element");
 
-  let selectedDriverId = '';
+  let selectedDriverId = "";
 
   app.innerHTML = `
     <section class="owner-page">
@@ -171,14 +193,18 @@ export async function mountOwnerAttendance() {
     </section>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('#owner-dashboard'));
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
 
-  const selectorDiv = document.getElementById('selector-container');
-  const tableDiv = document.getElementById('table-container');
+  const selectorDiv = document.getElementById("selector-container");
+  const tableDiv = document.getElementById("table-container");
 
   const renderTable = async () => {
-    tableDiv.innerHTML = '';
+    tableDiv.innerHTML = "";
     if (!selectedDriverId) {
       tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view attendance records.</p></div>`;
       return;
@@ -186,12 +212,14 @@ export async function mountOwnerAttendance() {
 
     let driverLogs = [];
     try {
-      const logs = await apiFetch(`/api/attendance?driver_id=${selectedDriverId}`);
+      const logs = await apiFetch(
+        `/api/attendance?driver_id=${selectedDriverId}`,
+      );
       if (Array.isArray(logs)) driverLogs = logs;
     } catch {
-      const raw = localStorage.getItem('fleet_attendance_logs');
+      const raw = localStorage.getItem("fleet_attendance_logs");
       const logs = raw ? JSON.parse(raw) : [];
-      driverLogs = logs.filter(l => l.driver_id === selectedDriverId);
+      driverLogs = logs.filter((l) => l.driver_id === selectedDriverId);
     }
 
     if (driverLogs.length === 0) {
@@ -199,14 +227,18 @@ export async function mountOwnerAttendance() {
       return;
     }
 
-    const drivers = await _loadDrivers();
-    const driverName = drivers.find(d => d.id === selectedDriverId)?.full_name ?? 'Unknown';
+    const drivers = await _loadDrivers(ownerId);
+    const driverName =
+      drivers.find((d) => d.id === selectedDriverId)?.full_name ?? "Unknown";
     const rows = driverLogs
       .sort((a, b) => b.timestamp - a.timestamp)
-      .map(log => {
+      .map((log) => {
         const d = new Date(log.timestamp);
-        const date = d.toISOString().split('T')[0];
-        const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+        const date = d.toISOString().split("T")[0];
+        const time = d.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+        });
         const loc = `${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}`;
         return `
           <tr>
@@ -217,7 +249,7 @@ export async function mountOwnerAttendance() {
           </tr>
         `;
       })
-      .join('');
+      .join("");
 
     tableDiv.innerHTML = `
       <div class="apple-card owner-table-card">
@@ -238,17 +270,19 @@ export async function mountOwnerAttendance() {
     `;
   };
 
-  await _renderDriverSelector(selectorDiv, selectedDriverId, id => {
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, id => {
     selectedDriverId = id;
     renderTable();
   });
 }
 
 export async function mountOwnerFuel() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  const user = getUser();
+  const ownerId = user?.id;
+  if (!app) throw new Error("Missing #app element");
 
-  let selectedDriverId = '';
+  let selectedDriverId = "";
 
   app.innerHTML = `
     <section class="owner-page">
@@ -266,14 +300,18 @@ export async function mountOwnerFuel() {
     </section>
   `;
 
-  document.getElementById('back-btn').addEventListener('click', () => navigate('#owner-dashboard'));
-  document.getElementById('logout-btn').addEventListener('click', () => logout());
+  document
+    .getElementById("back-btn")
+    .addEventListener("click", () => navigate("#owner-dashboard"));
+  document
+    .getElementById("logout-btn")
+    .addEventListener("click", () => logout());
 
-  const selectorDiv = document.getElementById('selector-container');
-  const tableDiv = document.getElementById('table-container');
+  const selectorDiv = document.getElementById("selector-container");
+  const tableDiv = document.getElementById("table-container");
 
   const renderTable = async () => {
-    tableDiv.innerHTML = '';
+    tableDiv.innerHTML = "";
     if (!selectedDriverId) {
       tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view fuel records.</p></div>`;
       return;
@@ -284,9 +322,9 @@ export async function mountOwnerFuel() {
       const logs = await apiFetch(`/api/fuel?driver_id=${selectedDriverId}`);
       if (Array.isArray(logs)) driverLogs = logs;
     } catch {
-      const raw = localStorage.getItem('fleet_fuel_logs');
+      const raw = localStorage.getItem("fleet_fuel_logs");
       const logs = raw ? JSON.parse(raw) : [];
-      driverLogs = logs.filter(l => l.driver_id === selectedDriverId);
+      driverLogs = logs.filter((l) => l.driver_id === selectedDriverId);
     }
 
     if (driverLogs.length === 0) {
@@ -294,16 +332,20 @@ export async function mountOwnerFuel() {
       return;
     }
 
-    const drivers = await _loadDrivers();
-    const driverName = drivers.find(d => d.id === selectedDriverId)?.full_name ?? 'Unknown';
+    const drivers = await _loadDrivers(ownerId);
+    const driverName =
+      drivers.find((d) => d.id === selectedDriverId)?.full_name ?? "Unknown";
     const rows = driverLogs
       .sort((a, b) => b.timestamp - a.timestamp)
-      .map(log => {
+      .map((log) => {
         const d = new Date(log.timestamp);
-        const date = d.toISOString().split('T')[0];
-        const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-        const lat = log.latitude ? Number(log.latitude).toFixed(4) : '0.0000';
-        const lng = log.longitude ? Number(log.longitude).toFixed(4) : '0.0000';
+        const date = d.toISOString().split("T")[0];
+        const time = d.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
+        const lng = log.longitude ? Number(log.longitude).toFixed(4) : "0.0000";
         const loc = `${lat}, ${lng}`;
         const odo = log.odometer_reading ?? log.odometer;
         const amt = log.amount_spent ?? log.cost;
@@ -317,7 +359,7 @@ export async function mountOwnerFuel() {
           </tr>
         `;
       })
-      .join('');
+      .join("");
 
     tableDiv.innerHTML = `
       <div class="apple-card owner-table-card">
@@ -339,7 +381,7 @@ export async function mountOwnerFuel() {
     `;
   };
 
-  await _renderDriverSelector(selectorDiv, selectedDriverId, id => {
+  await _renderDriverSelector(selectorDiv, selectedDriverId, ownerId, id => {
     selectedDriverId = id;
     renderTable();
   });
