@@ -19,8 +19,7 @@ export async function mountOwnerAttendance() {
       <header class="owner-header">
         <button class="btn-secondary back-btn" id="back-btn">← Back</button>
         <div>
-          <p class="subtitle">Driver Insight</p>
-          <h2>Attendance Overview</h2>
+          <h2>Attendance</h2>
         </div>
         <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
       </header>

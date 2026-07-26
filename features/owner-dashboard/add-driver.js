@@ -14,8 +14,7 @@ export function mountAddDriver() {
       <header class="owner-header">
         <button class="btn-secondary back-btn" id="back-btn">← Back</button>
         <div>
-          <p class="subtitle">Management</p>
-          <h2>Add New Driver</h2>
+          <h2>Add New</h2>
         </div>
         <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
       </header>

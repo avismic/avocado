@@ -67,7 +67,7 @@ app.post("/api/auth/login", async (req, res) => {
     const users = await sql`
       SELECT id, username, password_hash, full_name, role 
       FROM users 
-      WHERE username = ${username}
+      WHERE LOWER(username) = LOWER(${username})
     `;
 
     if (users.length === 0) {
@@ -133,7 +133,7 @@ app.post("/api/drivers", async (req, res) => {
     }
 
     const existing = await sql`
-      SELECT id FROM users WHERE username = ${username}
+      SELECT id FROM users WHERE LOWER(username) = LOWER(${username})
     `;
 
     if (existing.length > 0) {
@@ -229,8 +229,14 @@ app.get("/api/drivers/details", async (req, res) => {
 app.post("/api/admin/add-owner", async (req, res) => {
   try {
     const { full_name, username, password } = req.body;
-    if (!full_name || !username || !password) {
-      return res.status(400).json({ error: "All fields are required" });
+    const existing = await sql`
+      SELECT id
+      FROM users
+      WHERE LOWER(username) = LOWER(${username})
+    `;
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Username already taken" });
     }
 
     const [newOwner] = await sql`

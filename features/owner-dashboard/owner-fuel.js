@@ -20,8 +20,7 @@ export async function mountOwnerFuel() {
       <header class="owner-header">
         <button class="btn-secondary back-btn" id="back-btn">← Back</button>
         <div>
-          <p class="subtitle">Driver Insight</p>
-          <h2>Fuel Expense Overview</h2>
+          <h2>Fuel Logs</h2>
         </div>
         <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
       </header>
