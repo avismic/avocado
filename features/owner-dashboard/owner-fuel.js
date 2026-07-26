@@ -1,3 +1,4 @@
+//path: features/owner-dashboard/owner-fuel.js
 import "../../css/global.css";
 import "./owner-dashboard.css";
 import { logout, getUser } from "../../js/auth.js";
@@ -73,9 +74,11 @@ export async function mountOwnerFuel() {
     const drivers = await _loadDrivers(ownerId);
     const driverName =
       drivers.find((d) => d.id === selectedDriverId)?.full_name ?? "Unknown";
-    const rows = driverLogs
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .map((log) => {
+
+    const sortedLogs = driverLogs.sort((a, b) => b.timestamp - a.timestamp);
+
+    const rows = sortedLogs
+      .map((log, index) => {
         const d = new Date(Number(log.timestamp));
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -88,14 +91,28 @@ export async function mountOwnerFuel() {
         const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
         const lng = log.longitude ? Number(log.longitude).toFixed(4) : "0.0000";
         const loc = log.address || `${lat}, ${lng}`;
-        const odo = log.odometer_reading ?? log.odometer;
-        const amt = log.amount_spent ?? log.cost;
+        const odo = Number(log.odometer_reading ?? log.odometer ?? 0);
+        const amt = Number(log.amount_spent ?? log.cost ?? 0);
+
+        let rsPerKm = "-";
+        if (index < sortedLogs.length - 1) {
+          const prevLog = sortedLogs[index + 1];
+          const prevOdo = Number(
+            prevLog.odometer_reading ?? prevLog.odometer ?? 0,
+          );
+          const distance = odo - prevOdo;
+          if (distance > 0) {
+            rsPerKm = (amt / distance).toFixed(2);
+          }
+        }
+
         return `
           <tr>
             <td><span class="driver-badge">${driverName}</span></td>
             <td><span class="log-date">${date}</span> <span class="log-time">${time}</span></td>
             <td>${odo} km</td>
-            <td class="log-amount">$${Number(amt).toFixed(2)}</td>
+            <td class="log-amount">₹${amt.toFixed(2)}</td>
+            <td>${rsPerKm !== "-" ? `₹${rsPerKm}` : "-"}</td>
             <td class="log-coord">${loc}</td>
           </tr>
         `;
@@ -121,6 +138,7 @@ export async function mountOwnerFuel() {
                 <th>Date & Time</th>
                 <th>Odometer</th>
                 <th>Amount</th>
+                <th>₹/km</th>
                 <th>Location</th>
               </tr>
             </thead>
@@ -134,8 +152,8 @@ export async function mountOwnerFuel() {
     if (downloadBtn) {
       downloadBtn.addEventListener("click", () => {
         let csvContent =
-          "data:text/csv;charset=utf-8,Driver,Date & Time,Odometer,Amount,Location\n";
-        driverLogs.forEach((log) => {
+          "data:text/csv;charset=utf-8,Driver,Date & Time,Odometer,Amount,Rs/km,Location\n";
+        sortedLogs.forEach((log, index) => {
           const d = new Date(Number(log.timestamp));
           const year = d.getFullYear();
           const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -150,9 +168,22 @@ export async function mountOwnerFuel() {
             ? Number(log.longitude).toFixed(4)
             : "0.0000";
           const loc = `"${log.address || `${lat}, ${lng}`}"`;
-          const odo = log.odometer_reading ?? log.odometer;
-          const amt = Number(log.amount_spent ?? log.cost ?? 0).toFixed(2);
-          csvContent += `"${driverName}","${date} ${time}","${odo} km","$${amt}",${loc}\n`;
+          const odo = Number(log.odometer_reading ?? log.odometer ?? 0);
+          const amt = Number(log.amount_spent ?? log.cost ?? 0);
+
+          let rsPerKm = "-";
+          if (index < sortedLogs.length - 1) {
+            const prevLog = sortedLogs[index + 1];
+            const prevOdo = Number(
+              prevLog.odometer_reading ?? prevLog.odometer ?? 0,
+            );
+            const distance = odo - prevOdo;
+            if (distance > 0) {
+              rsPerKm = (amt / distance).toFixed(2);
+            }
+          }
+
+          csvContent += `"${driverName}","${date} ${time}","${odo} km","₹${amt.toFixed(2)}","₹${rsPerKm}",${loc}\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
