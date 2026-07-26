@@ -1,5 +1,4 @@
-// features/login/login.js – Renders login UI & handles auth flow
-import '../../css/global.css'; // ensure global vars are loaded
+import '../../css/global.css';
 import './login.css';
 import { login } from '../../js/auth.js';
 import { navigate } from '../../js/router.js';
@@ -10,14 +9,21 @@ export function mountLogin() {
 
   app.innerHTML = `
     <div class="login-wrapper">
-      <div class="login-card glass-card">
-        <h2>Fleet Management Login</h2>
+      <div class="login-card apple-card">
+        <div class="login-header">
+          <p class="subtitle">Fleet Operations</p>
+          <h2>Sign In</h2>
+        </div>
         <form id="login-form" novalidate>
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" autocomplete="username" required />
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" autocomplete="current-password" required />
-          <button type="submit">Sign In</button>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="username" placeholder="Enter your username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+          </div>
+          <button type="submit" class="login-btn">Sign In</button>
           <div class="error-message" id="login-error" hidden></div>
         </form>
       </div>
@@ -35,8 +41,7 @@ export function mountLogin() {
 
     try {
       await login(username, password);
-      // After successful login, router will push the appropriate dashboard
-      navigate('#'); // let router resolve redirection based on role
+      navigate('#');
     } catch (err) {
       errDiv.textContent = err.message;
       errDiv.hidden = false;
