@@ -3,12 +3,12 @@ import { mountLogin } from "../features/login/login.js";
 import { registerRoute, navigate } from "./router.js";
 import { mountDriverDashboard } from "../features/driver-dashboard/driver-dashboard.js";
 import { mountAttendanceHistory } from "../features/attendance/attendance-view.js";
-import { mountFuelPage } from "../features/fuel/fuel.js";
+import { mountFuelPage } from "../features/fuel/fuel-page.js";
 import {
-  mountOwnerDashboard,
-  mountOwnerAttendance,
-  mountOwnerFuel,
+  mountOwnerDashboard
 } from "../features/owner-dashboard/owner-dashboard.js";
+import { mountOwnerAttendance } from "../features/owner-dashboard/owner-attendance.js";
+import { mountOwnerFuel } from "../features/owner-dashboard/owner-fuel.js";
 import { isAuthenticated, getUser } from "./auth.js";
 import { mountAddDriver } from "../features/owner-dashboard/add-driver.js";
 import { mountSeeDrivers } from "../features/owner-dashboard/see-drivers.js";
