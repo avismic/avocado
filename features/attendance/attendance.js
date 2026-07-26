@@ -1,6 +1,7 @@
+//path: features/attendance/attendance.js
 import { getDriverLocation } from "../../js/utils/geo.js";
 import { getUser } from "../../js/auth.js";
-import { showModal } from "../../features/shared/modal.js";
+import { showModal, closeModal } from "../../features/shared/modal.js";
 import { queueOfflineRequest } from "../../js/utils/sync.js";
 import { apiFetch } from "../../js/utils/api.js";
 
@@ -17,6 +18,12 @@ function _saveLogs(logs) {
 
 export async function markAttendance() {
   try {
+    showModal({
+      title: "Attendance",
+      message: "Marking Attendance...",
+      loading: true,
+    });
+
     const { latitude, longitude, timestamp } = await getDriverLocation();
     const user = getUser();
     if (!user) throw new Error("User not authenticated");
@@ -53,6 +60,8 @@ export async function markAttendance() {
     logs.unshift(record);
     _saveLogs(logs);
 
+    closeModal();
+
     showModal({
       title: "Attendance",
       message: !isOffline
@@ -66,6 +75,7 @@ export async function markAttendance() {
       },
     });
   } catch (err) {
+    closeModal();
     showModal({
       title: "Error",
       message: err.message,

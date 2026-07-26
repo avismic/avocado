@@ -1,3 +1,4 @@
+/* features/shared/modal.css */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -44,6 +45,23 @@
   margin-bottom: 24px;
 }
 
+.modal-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 4px 0;
+  width: 100%;
+}
+
+.modal-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--text-primary, #1d1d1f);
+  border-radius: 50%;
+  animation: modalSpin 0.8s linear infinite;
+}
+
 .modal-actions {
   display: flex;
   gap: 10px;
@@ -61,7 +79,9 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.1s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
 }
 
 .modal-primary-btn:hover {
@@ -90,11 +110,27 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
