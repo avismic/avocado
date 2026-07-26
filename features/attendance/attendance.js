@@ -46,7 +46,7 @@ export async function markAttendance() {
     }
 
     const logs = _loadLogs();
-    logs.push(record);
+    logs.unshift(record);
     _saveLogs(logs);
 
     showModal({
@@ -71,5 +71,5 @@ export async function markAttendance() {
 }
 
 export function getAttendanceLogs() {
-  return _loadLogs();
+  return _loadLogs().sort((a, b) => b.timestamp - a.timestamp);
 }

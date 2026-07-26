@@ -1,6 +1,5 @@
-//path: features/fuel/fuel.js
-
 import '../../css/global.css';
+import './fuel.css';
 import { getDriverLocation } from '../../js/utils/geo.js';
 import { getUser } from '../../js/auth.js';
 import { showModal } from '../../features/shared/modal.js';
@@ -33,35 +32,44 @@ export function mountFuelPage() {
   app.innerHTML = `
     <section class="fuel-page">
       <header class="fuel-header">
-        <button class="back-btn" id="back-btn">← Back</button>
-        <h2>Fuel Log</h2>
+        <button class="btn-secondary back-btn" id="back-btn">← Back</button>
+        <div>
+          <p class="subtitle">Management</p>
+          <h2>Fuel Log</h2>
+        </div>
       </header>
 
-      <div class="fuel-form-card glass-card">
+      <div class="fuel-form-card apple-card">
         <form id="fuel-form" novalidate>
-          <label for="odometer">Odometer Reading (km)</label>
-          <input type="number" step="0.01" id="odometer" name="odometer" required />
+          <div class="form-group">
+            <label for="odometer">Odometer Reading (km)</label>
+            <input type="number" step="0.01" id="odometer" name="odometer" placeholder="e.g. 14600" required />
+          </div>
 
-          <label for="amount">Amount Spent ($)</label>
-          <input type="number" step="0.01" id="amount" name="amount" required />
+          <div class="form-group">
+            <label for="amount">Amount Spent ($)</label>
+            <input type="number" step="0.01" id="amount" name="amount" placeholder="e.g. 1000" required />
+          </div>
 
-          <button type="submit" class="fuel-submit">Log Fuel Refill</button>
+          <button type="submit" class="btn-primary fuel-submit">Log Fuel Refill</button>
         </form>
       </div>
 
-      <div class="fuel-history">
+      <div class="fuel-history apple-card">
         <h3>Refill History</h3>
-        <table class="fuel-history-table">
-          <thead>
-            <tr>
-              <th>Date & Time</th>
-              <th>Odometer (km)</th>
-              <th>Amount ($)</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody id="history-body"></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="fuel-history-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Odometer</th>
+                <th>Amount</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
       </div>
     </section>
   `;
@@ -152,7 +160,7 @@ function _renderHistory() {
   const logs = _loadLogs().filter(l => l.driver_id === getUser()?.id);
 
   if (logs.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4">No fuel logs yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No fuel logs recorded yet.</td></tr>';
     return;
   }
 
@@ -160,15 +168,15 @@ function _renderHistory() {
     .sort((a, b) => b.timestamp - a.timestamp)
     .map(log => {
       const { date, time } = _formatDate(log.timestamp);
-      const coord = `${log.latitude.toFixed(5)}, ${log.longitude.toFixed(5)}`;
+      const coord = `${log.latitude.toFixed(4)}, ${log.longitude.toFixed(4)}`;
       const odo = log.odometer_reading ?? log.odometer;
       const amt = log.amount_spent ?? log.cost;
       return `
         <tr>
-          <td>${date} ${time}</td>
-          <td>${odo}</td>
-          <td>${amt}</td>
-          <td>${coord}</td>
+          <td><span class="log-date">${date}</span> <span class="log-time">${time}</span></td>
+          <td>${odo} km</td>
+          <td class="log-amount">$${amt.toFixed(2)}</td>
+          <td class="log-coord">${coord}</td>
         </tr>
       `;
     })
