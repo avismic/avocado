@@ -40,8 +40,16 @@ export function mountLogin() {
     const password = form.password.value.trim();
 
     try {
-      await login(username, password);
-      navigate('#');
+      const session = await login(username, password);
+      const role = session?.user?.role;
+      
+      if (role === 'admin') {
+        navigate('#admin-dashboard');
+      } else if (role === 'owner') {
+        navigate('#owner-dashboard');
+      } else {
+        navigate('#driver-dashboard');
+      }
     } catch (err) {
       errDiv.textContent = err.message;
       errDiv.hidden = false;

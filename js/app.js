@@ -12,6 +12,13 @@ import {
 import { isAuthenticated, getUser } from "./auth.js";
 import { mountAddDriver } from "../features/owner-dashboard/add-driver.js";
 import { mountSeeDrivers } from "../features/owner-dashboard/see-drivers.js";
+import { mountAdminDashboard } from "../features/admin/admin-dashboard.js";
+import { mountAddOwner } from "../features/admin/add-owner.js";
+import { mountSeeOwners } from "../features/admin/see-owners.js";
+
+registerRoute("admin-dashboard", mountAdminDashboard);
+registerRoute("admin-add-owner", mountAddOwner);
+registerRoute("admin-see-owners", mountSeeOwners);
 
 // Register driver routes
 // Register auth route
@@ -36,30 +43,33 @@ if (!isAuthenticated()) {
     navigate("#driver-dashboard");
   } else if (user?.role === "owner") {
     navigate("#owner-dashboard");
+  } else if (user?.role === "admin") {
+    navigate("#admin-dashboard");
   } else {
     navigate("#login");
   }
 }
 
 // ---- Service Worker registration (if supported) ----
-if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('ServiceWorker registered', reg.scope))
-      .catch(err => console.error('ServiceWorker registration failed:', err));
+if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => console.log("ServiceWorker registered", reg.scope))
+      .catch((err) => console.error("ServiceWorker registration failed:", err));
   });
 }
 
 // ---- Online event: flush any queued offline requests ----
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    console.log('Network restored – flushing offline queue');
-    import('./utils/sync.js')
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    console.log("Network restored – flushing offline queue");
+    import("./utils/sync.js")
       .then(({ flushOfflineQueue }) => {
         flushOfflineQueue()
-          .then(() => console.log('Offline queue flushed'))
-          .catch(err => console.error('Error flushing offline queue', err));
+          .then(() => console.log("Offline queue flushed"))
+          .catch((err) => console.error("Error flushing offline queue", err));
       })
-      .catch(err => console.error('Error importing sync utils:', err));
+      .catch((err) => console.error("Error importing sync utils:", err));
   });
 }

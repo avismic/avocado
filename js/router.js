@@ -26,9 +26,13 @@ function resolveTarget(hash = "") {
 
   // Role‑specific dashboard mapping
   const roleDash = {
+    admin: "#admin-dashboard",
     driver: "#driver-dashboard",
     owner: "#owner-dashboard",
   };
+
+  // Admin-only pages list
+  const adminOnly = ["admin-dashboard", "admin-add-owner", "admin-see-owners"];
 
   // Driver‑only pages list
   const driverOnly = [
@@ -39,13 +43,15 @@ function resolveTarget(hash = "") {
 
   // Owner‑only pages list
   const ownerOnly = [
-    "owner-dashboard", 
-    "owner-attendance", 
-    "owner-fuel", 
+    "owner-dashboard",
+    "owner-attendance",
+    "owner-fuel",
     "owner-add-driver",
-    "owner-see-drivers"
+    "owner-see-drivers",
   ];
-
+  if (adminOnly.includes(cleanHash) && user.role !== "admin") {
+    return { hash: "#admin-dashboard" };
+  }
   // Guard against accessing driver‑only page when not driver
   if (driverOnly.includes(cleanHash) && user.role !== "driver") {
     return { hash: "#driver-dashboard" };
@@ -57,13 +63,14 @@ function resolveTarget(hash = "") {
   }
 
   // If valid hash for user's role, keep it
+  // If valid hash for user's role, keep it
   if (
+    (adminOnly.includes(cleanHash) && user.role === "admin") ||
     (driverOnly.includes(cleanHash) && user.role === "driver") ||
     (ownerOnly.includes(cleanHash) && user.role === "owner")
   ) {
     return { hash: `#${cleanHash}` };
   }
-
   // Default fallback – send to appropriate dashboard based on role
   return { hash: roleDash[user.role] || "#login" };
 }
@@ -72,9 +79,17 @@ let isNavigating = false;
 
 /** Navigate to a hash (updates URL & triggers rendering) */
 export function navigate(targetHash) {
-  const currentHash = (typeof window !== "undefined" && window.location && window.location.hash) || "";
+  const currentHash =
+    (typeof window !== "undefined" &&
+      window.location &&
+      window.location.hash) ||
+    "";
   const resolved = resolveTarget(targetHash || currentHash);
-  if (typeof window !== "undefined" && window.location && resolved.hash !== window.location.hash) {
+  if (
+    typeof window !== "undefined" &&
+    window.location &&
+    resolved.hash !== window.location.hash
+  ) {
     window.location.replace(resolved.hash);
   } else {
     handleHashChange();
@@ -86,7 +101,11 @@ function handleHashChange() {
   if (isNavigating) return;
   isNavigating = true;
   try {
-    const currentHash = (typeof window !== "undefined" && window.location && window.location.hash) || "";
+    const currentHash =
+      (typeof window !== "undefined" &&
+        window.location &&
+        window.location.hash) ||
+      "";
     const resolved = resolveTarget(currentHash);
     const clean = resolved.hash.replace(/^#/, "");
 

@@ -209,6 +209,40 @@ app.get("/api/drivers/details", async (req, res) => {
   }
 });
 
+app.post("/api/admin/add-owner", async (req, res) => {
+  try {
+    const { full_name, username, password } = req.body;
+    if (!full_name || !username || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const [newOwner] = await sql`
+      INSERT INTO users (full_name, username, password_hash, role)
+      VALUES (${full_name}, ${username}, ${password}, 'owner')
+      RETURNING id, full_name, username, role
+    `;
+
+    res.status(201).json(newOwner);
+  } catch (error) {
+    console.error("Error adding owner:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/api/admin/owners", async (req, res) => {
+  try {
+    const owners = await sql`
+      SELECT id, full_name, username, password_hash AS password 
+      FROM users 
+      WHERE role = 'owner'
+    `;
+    res.json(owners);
+  } catch (error) {
+    console.error("Error fetching owners:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
