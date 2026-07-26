@@ -27,15 +27,19 @@ export async function markAttendance() {
       latitude,
       longitude,
       timestamp,
+      address: null,
     };
 
     let isOffline = false;
 
     try {
-      await apiFetch("/api/attendance", {
+      const response = await apiFetch("/api/attendance", {
         method: "POST",
         body: JSON.stringify(record),
       });
+      if (response && response.address) {
+        record.address = response.address;
+      }
     } catch (err) {
       console.error("API error:", err);
       isOffline = true;

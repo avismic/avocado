@@ -1,4 +1,3 @@
-// features/attendance/attendance-view.js
 import '../../css/global.css';
 import './attendance.css';
 import { getAttendanceLogs } from './attendance.js';
@@ -7,9 +6,7 @@ import { navigate } from '../../js/router.js';
 
 function _formatDate(timestamp) {
   const d = new Date(timestamp);
-  // YYYY‑MM‑DD
   const date = d.toISOString().split('T')[0];
-  // HH:MM AM/PM
   const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   return { date, time };
 }
@@ -23,12 +20,12 @@ export function mountAttendanceHistory() {
 
   const rows = logs.map(log => {
     const { date, time } = _formatDate(log.timestamp);
-    const coord = `${log.latitude.toFixed(5)}, ${log.longitude.toFixed(5)}`;
+    const locationText = log.address || `${log.latitude.toFixed(5)}, ${log.longitude.toFixed(5)}`;
     return `
       <tr>
         <td>${date}</td>
         <td>${time}</td>
-        <td>${coord}</td>
+        <td>${locationText}</td>
       </tr>`;
   }).join('');
 

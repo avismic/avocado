@@ -13,6 +13,39 @@ const sql = neon(
   process.env.DATABASE_URL || process.env.VITE_NEON_DATABASE_URL,
 );
 
+// Add this helper function near the top of server.js
+async function getAddressFromCoords(lat, lon) {
+  if (!lat || !lon) return null;
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`,
+      {
+        headers: {
+          "User-Agent": "FleetManagementApp/1.0",
+        },
+      },
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (data && data.address) {
+      const addr = data.address;
+      const primary =
+        addr.suburb ||
+        addr.neighbourhood ||
+        addr.village ||
+        addr.town ||
+        addr.city_district ||
+        "";
+      const secondary = addr.city || addr.state_district || addr.state || "";
+      const parts = [primary, secondary].filter(Boolean);
+      if (parts.length > 0) {
+        return parts.join(", ");
+      }
+    }
+  } catch (err) {}
+  return null;
+}
+
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -54,16 +87,43 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// app.post("/api/attendance", async (req, res) => {
+//   try {
+//     const { id, driver_id, latitude, longitude, timestamp } = req.body;
+
+//     await sql`
+//       INSERT INTO attendance_logs (id, driver_id, latitude, longitude, timestamp)
+//       VALUES (${id}, ${driver_id}, ${latitude}, ${longitude}, ${Number(timestamp)})
+//     `;
+
+//     res.status(200).json({ success: true, message: "Attendance recorded" });
+//   } catch (error) {
+//     console.error("Database error:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 app.post("/api/attendance", async (req, res) => {
   try {
     const { id, driver_id, latitude, longitude, timestamp } = req.body;
 
+    let address = null;
+    try {
+      if (latitude && longitude) {
+        address = await getAddressFromCoords(latitude, longitude);
+      }
+    } catch (err) {
+      address = null;
+    }
+
     await sql`
-      INSERT INTO attendance_logs (id, driver_id, latitude, longitude, timestamp)
-      VALUES (${id}, ${driver_id}, ${latitude}, ${longitude}, ${Number(timestamp)})
+      INSERT INTO attendance_logs (id, driver_id, latitude, longitude, address, timestamp)
+      VALUES (${id}, ${driver_id}, ${latitude}, ${longitude}, ${address}, ${Number(timestamp)})
     `;
 
-    res.status(200).json({ success: true, message: "Attendance recorded" });
+    res
+      .status(200)
+      .json({ success: true, message: "Attendance recorded", address });
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: error.message });
@@ -164,6 +224,51 @@ app.get("/api/drivers", async (req, res) => {
   }
 });
 
+// app.get("/api/drivers/details", async (req, res) => {
+//   try {
+//     const { owner_id } = req.query;
+//     if (!owner_id) {
+//       return res.status(400).json({ error: "owner_id is required" });
+//     }
+
+//     const drivers = await sql`
+//       SELECT
+//         u.id,
+//         u.full_name,
+//         u.username,
+//         u.password_hash AS password,
+//         COALESCE(f.total_fuel, 0) AS total_fuel_spent,
+//         a.last_attendance_time,
+//         a.last_latitude,
+//         a.last_longitude
+//       FROM users u
+//       LEFT JOIN (
+//         SELECT
+//           driver_id,
+//           SUM(cost) AS total_fuel
+//         FROM fuel_logs
+//         GROUP BY driver_id
+//       ) f ON u.id = f.driver_id
+//       LEFT JOIN (
+//         SELECT DISTINCT ON (driver_id)
+//           driver_id,
+//           timestamp AS last_attendance_time,
+//           latitude AS last_latitude,
+//           longitude AS last_longitude
+//         FROM attendance_logs
+//         ORDER BY driver_id, timestamp DESC
+//       ) a ON u.id = a.driver_id
+//       WHERE u.role = 'driver' AND u.owner_id = ${owner_id}
+//       ORDER BY u.full_name ASC
+//     `;
+
+//     res.status(200).json(drivers);
+//   } catch (error) {
+//     console.error("Error fetching driver details:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 app.get("/api/drivers/details", async (req, res) => {
   try {
     const { owner_id } = req.query;
@@ -180,7 +285,8 @@ app.get("/api/drivers/details", async (req, res) => {
         COALESCE(f.total_fuel, 0) AS total_fuel_spent,
         a.last_attendance_time,
         a.last_latitude,
-        a.last_longitude
+        a.last_longitude,
+        a.last_address
       FROM users u
       LEFT JOIN (
         SELECT 
@@ -194,7 +300,8 @@ app.get("/api/drivers/details", async (req, res) => {
           driver_id,
           timestamp AS last_attendance_time,
           latitude AS last_latitude,
-          longitude AS last_longitude
+          longitude AS last_longitude,
+          address AS last_address
         FROM attendance_logs
         ORDER BY driver_id, timestamp DESC
       ) a ON u.id = a.driver_id
