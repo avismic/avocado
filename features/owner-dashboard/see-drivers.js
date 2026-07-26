@@ -101,6 +101,15 @@ export async function mountSeeDrivers() {
 
     container.innerHTML = `
       <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-drivers-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
         <div class="table-wrapper">
           <table class="owner-table">
             <thead>
@@ -118,6 +127,27 @@ export async function mountSeeDrivers() {
         </div>
       </div>
     `;
+
+    const downloadBtn = container.querySelector("#download-drivers-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent = "data:text/csv;charset=utf-8,Driver Name,Username,Password,Last Location,Total Fuel Spent,Last Attendance\n";
+        drivers.forEach((driver) => {
+          const rawTime = driver.last_attendance_time ? Number(driver.last_attendance_time) : null;
+          const lastTime = rawTime && !isNaN(rawTime) ? new Date(rawTime).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }) : "N/A";
+          const lastLoc = driver.last_latitude && driver.last_longitude ? `"${Number(driver.last_latitude).toFixed(4)}, ${Number(driver.last_longitude).toFixed(4)}"` : "N/A";
+          const fuelSpent = `"$${Number(driver.total_fuel_spent).toFixed(2)}"`;
+          csvContent += `"${driver.full_name}","@${driver.username}","${driver.password}",${lastLoc},${fuelSpent},"${lastTime}"\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `drivers_directory.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
 
     container.querySelectorAll(".btn-toggle-pwd").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -147,7 +177,6 @@ export async function mountSeeDrivers() {
           const row = e.target.closest("tr");
           row.remove();
 
-          // If no drivers left, show empty state
           if (container.querySelectorAll("tbody tr").length === 0) {
             container.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">No drivers registered under your account yet.</p></div>`;
           }

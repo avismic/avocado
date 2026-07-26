@@ -71,6 +71,7 @@ async function _renderDriverSelector(container, selectedId, ownerId, onSelect) {
   container.appendChild(wrapper);
   return drivers;
 }
+
 export function mountOwnerDashboard() {
   const app = document.getElementById("app");
   if (!app) throw new Error("Missing #app element");
@@ -145,15 +146,6 @@ export function mountOwnerDashboard() {
     </section>
   `;
 
-  document
-    .getElementById("logout-btn")
-    .addEventListener("click", () => logout());
-  document
-    .getElementById("owner-attendance-tile")
-    .addEventListener("click", () => navigate("#owner-attendance"));
-  document
-    .getElementById("owner-fuel-tile")
-    .addEventListener("click", () => navigate("#owner-fuel"));
   document
     .getElementById("logout-btn")
     .addEventListener("click", () => logout());
@@ -263,6 +255,15 @@ export async function mountOwnerAttendance() {
 
     tableDiv.innerHTML = `
       <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-attendance-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
         <div class="table-wrapper">
           <table class="owner-table">
             <thead>
@@ -278,6 +279,34 @@ export async function mountOwnerAttendance() {
         </div>
       </div>
     `;
+
+    const downloadBtn = tableDiv.querySelector("#download-attendance-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent =
+          "data:text/csv;charset=utf-8,Driver,Date,Time,Location\n";
+        driverLogs.forEach((log) => {
+          const d = new Date(log.timestamp);
+          const date = d.toISOString().split("T")[0];
+          const time = d.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          const loc = `"${Number(log.latitude).toFixed(4)}, ${Number(log.longitude).toFixed(4)}"`;
+          csvContent += `"${driverName}","${date}","${time}",${loc}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute(
+          "download",
+          `attendance_${driverName.replace(/\s+/g, "_")}.csv`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
   };
 
   selectorDiv.innerHTML = `
@@ -330,7 +359,7 @@ export async function mountOwnerFuel() {
   const renderTable = async () => {
     tableDiv.innerHTML = "";
     if (!selectedDriverId) {
-      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view attendance records.</p></div>`;
+      tableDiv.innerHTML = `<div class="apple-card empty-card"><p class="empty-state">Please select a driver to view fuel records.</p></div>`;
       return;
     }
 
@@ -388,6 +417,15 @@ export async function mountOwnerFuel() {
 
     tableDiv.innerHTML = `
       <div class="apple-card owner-table-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+          <button type="button" id="download-fuel-btn" class="btn-secondary" title="Download Excel" style="padding: 6px 10px; display: inline-flex; align-items: center; justify-content: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
         <div class="table-wrapper">
           <table class="owner-table">
             <thead>
@@ -404,6 +442,40 @@ export async function mountOwnerFuel() {
         </div>
       </div>
     `;
+
+    const downloadBtn = tableDiv.querySelector("#download-fuel-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        let csvContent =
+          "data:text/csv;charset=utf-8,Driver,Date & Time,Odometer,Amount,Location\n";
+        driverLogs.forEach((log) => {
+          const d = new Date(log.timestamp);
+          const date = d.toISOString().split("T")[0];
+          const time = d.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          const lat = log.latitude ? Number(log.latitude).toFixed(4) : "0.0000";
+          const lng = log.longitude
+            ? Number(log.longitude).toFixed(4)
+            : "0.0000";
+          const loc = `"${lat}, ${lng}"`;
+          const odo = log.odometer_reading ?? log.odometer;
+          const amt = Number(log.amount_spent ?? log.cost ?? 0).toFixed(2);
+          csvContent += `"${driverName}","${date} ${time}","${odo} km","$${amt}",${loc}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute(
+          "download",
+          `fuel_logs_${driverName.replace(/\s+/g, "_")}.csv`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
   };
 
   selectorDiv.innerHTML = `
