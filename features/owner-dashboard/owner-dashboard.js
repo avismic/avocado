@@ -108,19 +108,33 @@ export function mountOwnerDashboard() {
           </div>
         </div>
         <div class="tile-card apple-card" id="owner-add-driver-tile">
-  <div class="icon-wrapper">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-      <circle cx="8.5" cy="7" r="4"></circle>
-      <line x1="20" y1="8" x2="20" y2="14"></line>
-      <line x1="23" y1="11" x2="17" y2="11"></line>
-    </svg>
-  </div>
-  <div class="tile-content">
-    <h3>Add Driver</h3>
-    <p>Register new drivers under your fleet management account</p>
-  </div>
-</div>
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Add Driver</h3>
+            <p>Register new drivers under your fleet management account</p>
+          </div>
+        </div>
+        <div class="tile-card apple-card" id="owner-see-drivers-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>See Drivers</h3>
+            <p>View registered drivers, credentials, last locations, and total expenses</p>
+          </div>
+        </div>
       </div>
     </section>
   `;
@@ -132,7 +146,7 @@ export function mountOwnerDashboard() {
   document.getElementById('owner-attendance-tile').addEventListener('click', () => navigate('#owner-attendance'));
   document.getElementById('owner-fuel-tile').addEventListener('click', () => navigate('#owner-fuel'));
   document.getElementById('owner-add-driver-tile').addEventListener('click', () => navigate('#owner-add-driver'));
-
+  document.getElementById('owner-see-drivers-tile').addEventListener('click', () => navigate('#owner-see-drivers'));
 }
 
 export async function mountOwnerAttendance() {

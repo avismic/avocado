@@ -164,6 +164,51 @@ app.get("/api/drivers", async (req, res) => {
   }
 });
 
+app.get("/api/drivers/details", async (req, res) => {
+  try {
+    const { owner_id } = req.query;
+    if (!owner_id) {
+      return res.status(400).json({ error: "owner_id is required" });
+    }
+
+    const drivers = await sql`
+      SELECT 
+        u.id,
+        u.full_name,
+        u.username,
+        u.password_hash AS password,
+        COALESCE(f.total_fuel, 0) AS total_fuel_spent,
+        a.last_attendance_time,
+        a.last_latitude,
+        a.last_longitude
+      FROM users u
+      LEFT JOIN (
+        SELECT 
+          driver_id, 
+          SUM(cost) AS total_fuel
+        FROM fuel_logs
+        GROUP BY driver_id
+      ) f ON u.id = f.driver_id
+      LEFT JOIN (
+        SELECT DISTINCT ON (driver_id)
+          driver_id,
+          timestamp AS last_attendance_time,
+          latitude AS last_latitude,
+          longitude AS last_longitude
+        FROM attendance_logs
+        ORDER BY driver_id, timestamp DESC
+      ) a ON u.id = a.driver_id
+      WHERE u.role = 'driver' AND u.owner_id = ${owner_id}
+      ORDER BY u.full_name ASC
+    `;
+
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error("Error fetching driver details:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

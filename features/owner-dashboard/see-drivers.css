@@ -1,0 +1,38 @@
+.driver-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.driver-username {
+  font-size: 12px;
+  color: var(--text-secondary, #86868b);
+}
+
+.password-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.password-text {
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.btn-toggle-pwd {
+  background: transparent;
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--accent-color, #0071e3);
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-pwd:hover {
+  background: rgba(0, 113, 227, 0.08);
+}

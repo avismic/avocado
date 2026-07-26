@@ -38,7 +38,13 @@ function resolveTarget(hash = "") {
   ];
 
   // Owner‑only pages list
-  const ownerOnly = ["owner-dashboard", "owner-attendance", "owner-fuel", "owner-add-driver"];
+  const ownerOnly = [
+    "owner-dashboard", 
+    "owner-attendance", 
+    "owner-fuel", 
+    "owner-add-driver",
+    "owner-see-drivers"
+  ];
 
   // Guard against accessing driver‑only page when not driver
   if (driverOnly.includes(cleanHash) && user.role !== "driver") {
