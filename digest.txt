@@ -1,8 +1,11 @@
 Directory structure:
 └── avocado/
+    ├── README.md
     ├── index.html
     ├── manifest.json
     ├── package.json
+    ├── push.sh
+    ├── server.js
     ├── sw.js
     ├── vite.config.js
     ├── vitest.config.js
@@ -19,6 +22,7 @@ Directory structure:
     │   │   ├── driver-dashboard.css
     │   │   └── driver-dashboard.js
     │   ├── fuel/
+    │   │   ├── fuel.css
     │   │   └── fuel.js
     │   ├── login/
     │   │   ├── login.css
@@ -44,6 +48,13 @@ Directory structure:
         ├── phase7.test.js
         ├── phase8.test.js
         └── setup.js
+
+================================================
+FILE: README.md
+================================================
+# avocado
+
+
 
 ================================================
 FILE: index.html
@@ -95,7 +106,7 @@ FILE: manifest.json
 FILE: package.json
 ================================================
 {
-  "name": "fleet-pwa",
+  "name": "avocado",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -103,18 +114,159 @@ FILE: package.json
     "test": "vitest run"
   },
   "devDependencies": {
+    "jsdom": "^24.0.0",
     "vite": "^5.3.0",
-    "vitest": "^2.0.0",
-    "jsdom": "^24.0.0"
+    "vitest": "^2.0.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
   }
 }
 
 
 
 ================================================
+FILE: push.sh
+================================================
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: ./push.sh \"commit message\""
+  exit 1
+fi
+
+git add .
+git commit -m "$1"
+git push
+
+
+================================================
+FILE: server.js
+================================================
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { neon } from "@neondatabase/serverless";
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const sql = neon(
+  process.env.DATABASE_URL || process.env.VITE_NEON_DATABASE_URL,
+);
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
+    }
+
+    const users = await sql`
+      SELECT id, username, password_hash, full_name, role 
+      FROM users 
+      WHERE username = ${username}
+    `;
+
+    if (users.length === 0) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    const user = users[0];
+
+    if (user.password_hash !== password) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    const token = Buffer.from(`${user.id}:${Date.now()}`).toString("base64");
+
+    res.status(200).json({
+      user: {
+        id: user.id,
+        username: user.username,
+        full_name: user.full_name,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/attendance", async (req, res) => {
+  try {
+    const { id, driver_id, latitude, longitude, timestamp } = req.body;
+
+    await sql`
+      INSERT INTO attendance_logs (id, driver_id, latitude, longitude, timestamp)
+      VALUES (${id}, ${driver_id}, ${latitude}, ${longitude}, ${Number(timestamp)})
+    `;
+
+    res.status(200).json({ success: true, message: "Attendance recorded" });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/fuel", async (req, res) => {
+  try {
+    const {
+      id,
+      driver_id,
+      liters,
+      cost,
+      amount_spent,
+      odometer,
+      odometer_reading,
+      latitude,
+      longitude,
+      timestamp,
+    } = req.body;
+
+    const finalCost = cost ?? amount_spent;
+    const finalOdometer = odometer ?? odometer_reading;
+
+    await sql`
+      INSERT INTO fuel_logs (id, driver_id, liters, cost, odometer, latitude, longitude, timestamp)
+      VALUES (
+        ${id},
+        ${driver_id},
+        ${liters ?? null},
+        ${finalCost},
+        ${finalOdometer},
+        ${latitude},
+        ${longitude},
+        ${Number(timestamp)}
+      )
+    `;
+
+    res.status(200).json({ success: true, message: "Fuel log recorded" });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+
+================================================
 FILE: sw.js
 ================================================
-// Service Worker for Fleet Manager PWA
 const CACHE_NAME = 'fleet-manager-v1';
 const CORE_ASSETS = [
   '/',
@@ -153,7 +305,11 @@ self.addEventListener('fetch', (event) => {
   const isApi = url.pathname.startsWith('/api/');
 
   if (isApi) {
-    // Network First for API calls
+    if (request.method !== 'GET') {
+      event.respondWith(fetch(request));
+      return;
+    }
+
     event.respondWith(
       fetch(request)
         .then(networkRes => {
@@ -163,7 +319,6 @@ self.addEventListener('fetch', (event) => {
         .catch(() => caches.match(request))
     );
   } else {
-    // Cache First for static assets
     event.respondWith(
       caches.match(request).then(cached => cached || fetch(request))
     );
@@ -171,21 +326,20 @@ self.addEventListener('fetch', (event) => {
 });
 
 
-
 ================================================
 FILE: vite.config.js
 ================================================
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: '.',
   server: {
-    port: 5173,
-    open: true
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3000",
+        changeOrigin: true,
+      },
+    },
   },
-  build: {
-    outDir: 'dist'
-  }
 });
 
 
@@ -218,77 +372,90 @@ export default defineConfig({
 ================================================
 FILE: css/global.css
 ================================================
-/* Design Tokens */
 :root {
-  --bg: #000000;
-  --surface: rgba(255, 255, 255, 0.07);
-  --surface-border: rgba(255, 255, 255, 0.12);
-  --text-primary: #ffffff;
-  --text-secondary: #8e8e93;
-  --radius-lg: 18px;
-  --radius-sm: 12px;
+  --bg-main: #f5f5f7;
+  --bg-card: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --accent-color: #0071e3;
+  --accent-hover: #0077ed;
+  --border-light: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* Global Reset \u0026 Typography */
-*,
-*::before,
-*::after {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* iOS safeâ€‘area padding for the body */
 body {
-  min-height: 100vh;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--bg);
+  background-color: var(--bg-main);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
 }
 
-/* Glassmorphism Utility */
-.glass-card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
+#app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px;
 }
 
-/* Button tactile feedback â€“ Appleâ€‘style press animation */
-button,
-input[type="button"],
-input[type="submit"] {
-  -webkit-appearance: none;
-  appearance: none;
+.apple-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apple-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+  background-color: var(--text-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition:
-    transform 0.08s ease-out,
-    background-color 0.2s;
-}
-button:active,
-input[type="button"]:active,
-input[type="submit"]:active {
-  transform: scale(0.96);
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-/* Subtle hover for glass cards */
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.09);
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
-/* Focus outlines for accessibility */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 2px;
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
+.btn-secondary {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-btn);
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
 
 
 ================================================
@@ -409,7 +576,6 @@ import { showModal } from "../../features/shared/modal.js";
 import { queueOfflineRequest } from "../../js/utils/sync.js";
 import { apiFetch } from "../../js/utils/api.js";
 
-// Local storage key for attendance logs
 const ATTENDANCE_KEY = "fleet_attendance_logs";
 
 function _loadLogs() {
@@ -421,10 +587,6 @@ function _saveLogs(logs) {
   localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(logs));
 }
 
-/**
- * Marks attendance â€“ attempts backend API submission via apiFetch;
- * falls back to offline queue if offline or upon network failure.
- */
 export async function markAttendance() {
   try {
     const { latitude, longitude, timestamp } = await getDriverLocation();
@@ -439,30 +601,24 @@ export async function markAttendance() {
       timestamp,
     };
 
-    let isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    let isOffline = false;
 
-    if (!isOffline) {
-      try {
-        await apiFetch('/api/attendance', {
-          method: 'POST',
-          body: JSON.stringify(record)
-        });
-      } catch (err) {
-        if (err.isNetworkError) {
-          isOffline = true;
-        } else {
-          throw err;
-        }
-      }
+    try {
+      await apiFetch("/api/attendance", {
+        method: "POST",
+        body: JSON.stringify(record),
+      });
+    } catch (err) {
+      console.error("API error:", err);
+      isOffline = true;
     }
 
     if (isOffline) {
       queueOfflineRequest("attendance", record);
     }
 
-    // Save record to local storage so history views update immediately
     const logs = _loadLogs();
-    logs.push(record);
+    logs.unshift(record);
     _saveLogs(logs);
 
     showModal({
@@ -486,9 +642,8 @@ export async function markAttendance() {
   }
 }
 
-/** Expose logs for local views & fallbacks */
 export function getAttendanceLogs() {
-  return _loadLogs();
+  return _loadLogs().sort((a, b) => b.timestamp - a.timestamp);
 }
 
 
@@ -496,74 +651,84 @@ export function getAttendanceLogs() {
 ================================================
 FILE: features/driver-dashboard/driver-dashboard.css
 ================================================
-/* features/driver-dashboard/driver-dashboard.css */
-
 .driver-dashboard {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text-primary);
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
 .driver-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface-border);
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+.driver-header .subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
 }
 
 .driver-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
 }
 
 .logout-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1rem;
-  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 16px;
 }
 
 .tiles-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .tile-card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
   cursor: pointer;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  transition: transform 0.2s ease;
+  user-select: none;
 }
 
-.tile-card:hover {
-  transform: translateY(-2px);
-}
-
-.tile-card h3 {
-  margin: 0.5rem 0 0;
-  font-size: 1.1rem;
+.icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-primary);
 }
 
+.tile-content h3 {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.tile-content p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
 
 
 ================================================
 FILE: features/driver-dashboard/driver-dashboard.js
 ================================================
-// features/driver-dashboard/driver-dashboard.js
 import '../../css/global.css';
 import './driver-dashboard.css';
 import { logout } from '../../js/auth.js';
@@ -575,23 +740,45 @@ export function mountDriverDashboard() {
   app.innerHTML = `
     <section class="driver-dashboard">
       <header class="driver-header">
-        <h1>Driver Dashboard</h1>
-        <button class="logout-btn" id="logout-btn">Logout</button>
-      </header>
-      <div class="tiles-container">
-        <div class="tile-card" id="attendance-tile">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg>
-          <h3>Mark Attendance</h3>
+        <div>
+          <p class="subtitle">Overview</p>
+          <h1>Driver Dashboard</h1>
         </div>
-        <div class="tile-card" id="fuel-tile">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 4 23 4 23 20 1 20 1 4"></polygon><line x1="1" y1="8" x2="23" y2="8"></line></svg>
-          <h3>Fuel Log</h3>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="tiles-container">
+        <div class="tile-card apple-card" id="attendance-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8v4l3 3"></path>
+              <circle cx="12" cy="12" r="9"></circle>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Mark Attendance</h3>
+            <p>Record your shift start and current location</p>
+          </div>
+        </div>
+
+        <div class="tile-card apple-card" id="fuel-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="22" x2="15" y2="22"></line>
+              <line x1="4" y1="9" x2="14" y2="9"></line>
+              <path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path>
+              <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42l-2.82-2.82"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Fuel Log</h3>
+            <p>Log fuel refills and track expenses</p>
+          </div>
         </div>
       </div>
     </section>
   `;
 
-  // Attach handlers
   document.getElementById('logout-btn').addEventListener('click', () => logout());
   document.getElementById('attendance-tile').addEventListener('click', () => {
     import('../../features/attendance/attendance.js').then(m => m.markAttendance());
@@ -602,99 +789,275 @@ export function mountDriverDashboard() {
 }
 
 
+================================================
+FILE: features/fuel/fuel.css
+================================================
+.fuel-page {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.fuel-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.fuel-header .subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.fuel-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.back-btn {
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+.fuel-form-card {
+  margin-bottom: 28px;
+  padding: 28px;
+}
+
+#fuel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.fuel-submit {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.fuel-history {
+  padding: 28px;
+}
+
+.fuel-history h3 {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.fuel-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.fuel-history-table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.fuel-history-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.fuel-history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.log-date {
+  font-weight: 500;
+}
+
+.log-time {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-left: 6px;
+}
+
+.log-amount {
+  font-weight: 600;
+}
+
+.log-coord {
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 32px 16px !important;
+}
+
 
 ================================================
 FILE: features/fuel/fuel.js
 ================================================
-Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x90 in position 1085: character maps to <undefined>
+Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x90 in position 1121: character maps to <undefined>
 
 
 ================================================
 FILE: features/login/login.css
 ================================================
-/* features/login/login.css */
-
-/* Featureâ€‘isolated styling â€“ inherits global design tokens */
-
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  padding: 20px;
 }
 
 .login-card {
-  width: 320px;
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 380px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
 }
 
-.login-card h2 {
-  margin-bottom: 1.5rem;
+.login-header {
   text-align: center;
-  color: var(--text-primary);
+  margin-bottom: 28px;
 }
 
-.login-card label {
-  display: block;
-  margin-top: 1rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.login-card input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  margin-top: 0.25rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 1rem;
-}
-
-.login-card input:focus {
-  outline: none;
-  border-color: var(--text-primary);
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
-}
-
-.login-card button {
-  margin-top: 1.5rem;
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--text-primary);
-  color: var(--bg);
-  border: none;
-  border-radius: var(--radius-sm);
+.login-header .subtitle {
+  font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary, #86868b);
+  margin-bottom: 4px;
 }
 
-.login-card button:hover {
-  background: rgba(255,255,255,0.85);
+.login-header h2 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary, #1d1d1f);
+}
+
+#login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #86868b);
+}
+
+.form-group input {
+  background: var(--bg-main, #f5f5f7);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-primary, #1d1d1f);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-color, #0071e3);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.login-btn {
+  margin-top: 8px;
+  width: 100%;
+  background-color: var(--text-primary, #1d1d1f);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
 }
 
 .error-message {
-  margin-top: 1rem;
-  color: #ff6b6b;
+  background-color: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  color: #ff3b30;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
   text-align: center;
-  font-size: 0.9rem;
+  line-height: 1.4;
 }
-
 
 
 ================================================
 FILE: features/login/login.js
 ================================================
-// features/login/login.js â€“ Renders login UI & handles auth flow
-import '../../css/global.css'; // ensure global vars are loaded
+import '../../css/global.css';
 import './login.css';
 import { login } from '../../js/auth.js';
 import { navigate } from '../../js/router.js';
@@ -705,14 +1068,21 @@ export function mountLogin() {
 
   app.innerHTML = `
     <div class="login-wrapper">
-      <div class="login-card glass-card">
-        <h2>Fleet Management Login</h2>
+      <div class="login-card apple-card">
+        <div class="login-header">
+          <p class="subtitle">Fleet Operations</p>
+          <h2>Sign In</h2>
+        </div>
         <form id="login-form" novalidate>
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" autocomplete="username" required />
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" autocomplete="current-password" required />
-          <button type="submit">Sign In</button>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="username" placeholder="Enter your username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+          </div>
+          <button type="submit" class="login-btn">Sign In</button>
           <div class="error-message" id="login-error" hidden></div>
         </form>
       </div>
@@ -730,15 +1100,13 @@ export function mountLogin() {
 
     try {
       await login(username, password);
-      // After successful login, router will push the appropriate dashboard
-      navigate('#'); // let router resolve redirection based on role
+      navigate('#');
     } catch (err) {
       errDiv.textContent = err.message;
       errDiv.hidden = false;
     }
   });
 }
-
 
 
 ================================================
@@ -848,103 +1216,112 @@ Error reading file with 'cp1252': 'charmap' codec can't decode byte 0x90 in posi
 ================================================
 FILE: features/shared/modal.css
 ================================================
-/* features/shared/modal.css */
-
-/* Backdrop â€“ dark translucent with blur */
 .modal-backdrop {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
 }
 
-/* Glassâ€‘morphic dialog */
 .modal-dialog {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  max-width: 90vw;
-  width: 340px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  color: var(--text-primary);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  width: 90%;
+  max-width: 360px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-header {
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+  font-size: 18px;
   font-weight: 600;
-  text-align: center;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
 }
 
 .modal-body {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+  font-size: 14px;
+  color: var(--text-secondary, #86868b);
   line-height: 1.4;
-  text-align: center;
+  margin-bottom: 24px;
 }
 
 .modal-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 10px;
+  width: 100%;
   justify-content: center;
 }
 
-/* Appleâ€‘style primary button â€“ white pill */
 .modal-primary-btn {
   flex: 1;
-  padding: 0.5rem 1rem;
-  background: var(--text-primary);
-  color: var(--bg);
+  background-color: var(--text-primary, #1d1d1f);
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .modal-primary-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  opacity: 0.9;
 }
 
-/* Secondary â€“ subtle text button */
+.modal-primary-btn:active {
+  transform: scale(0.98);
+}
+
 .modal-secondary-btn {
   flex: 1;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary, #1d1d1f);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .modal-secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 
 
 ================================================
 FILE: features/shared/modal.js
 ================================================
-// features/shared/modal.js
-// Accessible glassâ€‘morphic modal implementation
-// Usage example (inside any feature):
-// showModal({
-//   title: 'Confirm',
-//   message: 'Do you want to continue?',
-//   primaryBtnText: 'Yes',
-//   primaryBtnCallback: () => console.log('yes'),
-//   secondaryBtnText: 'No',
-//   secondaryBtnCallback: () => console.log('no')
-// });
-
-import '../../css/global.css'; // ensure design tokens are available
+import '../../css/global.css';
 import './modal.css';
 
 let currentBackdrop = null;
@@ -959,34 +1336,23 @@ function _createDialog({ title, message, primaryBtnText, primaryBtnCallback, sec
   const dialog = document.createElement('div');
   dialog.className = 'modal-dialog';
 
-  // Header
-  const header = document.createElement('div');
-  header.className = 'modal-header';
-  header.textContent = title;
-  dialog.appendChild(header);
+  if (title) {
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+    header.textContent = title;
+    dialog.appendChild(header);
+  }
 
-  // Body
-  const body = document.createElement('div');
-  body.className = 'modal-body';
-  body.textContent = message;
-  dialog.appendChild(body);
+  if (message) {
+    const body = document.createElement('div');
+    body.className = 'modal-body';
+    body.textContent = message;
+    dialog.appendChild(body);
+  }
 
-  // Actions container
   const actions = document.createElement('div');
   actions.className = 'modal-actions';
 
-  // Primary button (required)
-  const primaryBtn = document.createElement('button');
-  primaryBtn.type = 'button';
-  primaryBtn.className = 'modal-primary-btn';
-  primaryBtn.textContent = primaryBtnText || 'OK';
-  primaryBtn.addEventListener('click', () => {
-    if (typeof primaryBtnCallback === 'function') primaryBtnCallback();
-    _close();
-  });
-  actions.appendChild(primaryBtn);
-
-  // Secondary button (optional)
   if (secondaryBtnText) {
     const secondaryBtn = document.createElement('button');
     secondaryBtn.type = 'button';
@@ -999,13 +1365,22 @@ function _createDialog({ title, message, primaryBtnText, primaryBtnCallback, sec
     actions.appendChild(secondaryBtn);
   }
 
+  const primaryBtn = document.createElement('button');
+  primaryBtn.type = 'button';
+  primaryBtn.className = 'modal-primary-btn';
+  primaryBtn.textContent = primaryBtnText || 'OK';
+  primaryBtn.addEventListener('click', () => {
+    if (typeof primaryBtnCallback === 'function') primaryBtnCallback();
+    _close();
+  });
+  actions.appendChild(primaryBtn);
+
   dialog.appendChild(actions);
   return dialog;
 }
 
 function _close() {
   if (currentBackdrop) {
-    // Remove listeners first
     currentBackdrop.removeEventListener('click', _handleBackdropClick);
     document.removeEventListener('keydown', _handleEscKey);
     currentBackdrop.parentNode?.removeChild(currentBackdrop);
@@ -1033,7 +1408,6 @@ export function showModal({
   secondaryBtnText,
   secondaryBtnCallback
 }) {
-  // Prevent duplicate modal instances
   if (currentBackdrop) return;
 
   const backdrop = _createBackdrop();
@@ -1043,21 +1417,19 @@ export function showModal({
   document.body.appendChild(backdrop);
   currentBackdrop = backdrop;
 
-  // Accessibility â€“ focus first button
   const firstBtn = dialog.querySelector('button');
   firstBtn?.focus();
 
-  // Event listeners for dismissal
   backdrop.addEventListener('click', _handleBackdropClick);
   document.addEventListener('keydown', _handleEscKey);
 }
-
 
 
 ================================================
 FILE: js/app.js
 ================================================
 // js/app.js â€“ Application bootstrap for Phase 8
+import { mountLogin } from "../features/login/login.js";
 import { registerRoute, navigate } from "./router.js";
 import { mountDriverDashboard } from "../features/driver-dashboard/driver-dashboard.js";
 import { mountAttendanceHistory } from "../features/attendance/attendance-view.js";
@@ -1070,6 +1442,8 @@ import {
 import { isAuthenticated, getUser } from "./auth.js";
 
 // Register driver routes
+// Register auth route
+registerRoute("login", mountLogin);
 registerRoute("driver-dashboard", mountDriverDashboard);
 registerRoute("driver-attendance-history", mountAttendanceHistory);
 registerRoute("driver-fuel", mountFuelPage);
@@ -1395,37 +1769,27 @@ if (typeof window !== "undefined") {
 ================================================
 FILE: js/utils/api.js
 ================================================
-// js/utils/api.js - Centralized API Client Wrapper
 import { getToken } from "../auth.js";
 
-/**
- * Custom wrapper around fetch for Fleet Management API.
- * Automatically injects Bearer token headers and handles network errors.
- * 
- * @param {string} endpoint - API path (e.g., '/api/attendance' or 'api/attendance')
- * @param {RequestInit} [options={}] - Fetch configuration options
- * @returns {Promise<any>} Parsed JSON or response payload
- */
 export async function apiFetch(endpoint, options = {}) {
-  // Check browser network status prior to network call
-  if (typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine) {
-    const error = new Error('Network offline');
-    error.isNetworkError = true;
-    throw error;
+  const baseUrl = import.meta.env?.VITE_NEON_DATABASE_URL || '';
+  
+  let targetUrl = endpoint;
+  if (baseUrl && !baseUrl.startsWith('postgres')) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    targetUrl = `${baseUrl.replace(/\/$/, '')}${cleanEndpoint}`;
+  } else {
+    targetUrl = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
 
-  const baseUrl = import.meta.env?.VITE_NEON_DATABASE_URL || '';
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}${cleanEndpoint}` : cleanEndpoint;
+  console.log("Executing API Fetch to:", targetUrl);
 
   const headers = { ...options.headers };
 
-  // Set content type if body is present and not already specified
   if (options.body && !headers['Content-Type'] && !headers['content-type']) {
     headers['Content-Type'] = 'application/json';
   }
 
-  // Inject Authorization Bearer token if available
   const token = getToken();
   if (token && !headers['Authorization'] && !headers['authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -1438,8 +1802,9 @@ export async function apiFetch(endpoint, options = {}) {
 
   let response;
   try {
-    response = await fetch(url, config);
+    response = await fetch(targetUrl, config);
   } catch (err) {
+    console.error("Fetch Exception Caught:", err);
     const error = new Error(err?.message || 'Network fetch failed');
     error.isNetworkError = true;
     throw error;
@@ -1453,7 +1818,6 @@ export async function apiFetch(endpoint, options = {}) {
         errorMessage = errorData.message || errorData.error;
       }
     } catch {
-      // Ignore JSON parse failure on error body
     }
     const error = new Error(errorMessage);
     error.status = response.status;
@@ -1478,7 +1842,6 @@ export async function apiFetch(endpoint, options = {}) {
 }
 
 
-
 ================================================
 FILE: js/utils/geo.js
 ================================================
@@ -1488,15 +1851,15 @@ FILE: js/utils/geo.js
 
 export function getDriverLocation() {
   return new Promise((resolve, reject) => {
-    if (!('geolocation' in navigator)) {
-      reject(new Error('Geolocation not supported by this browser'));
+    if (!("geolocation" in navigator)) {
+      reject(new Error("Geolocation not supported by this browser"));
       return;
     }
 
     const options = {
-      enableHighAccuracy: true,
-      timeout: 10000, // 10â€¯seconds
-      maximumAge: 0
+      enableHighAccuracy: false,
+      timeout: 20000,
+      maximumAge: 30000,
     };
 
     navigator.geolocation.getCurrentPosition(
@@ -1504,27 +1867,39 @@ export function getDriverLocation() {
         resolve({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          timestamp: position.timestamp
+          timestamp: position.timestamp,
         });
       },
       (error) => {
+        console.error("Raw Geolocation Error:", error);
+        const isDev =
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1";
+        if (isDev) {
+          resolve({
+            latitude: 12.9716,
+            longitude: 77.5946,
+            timestamp: Date.now(),
+          });
+          return;
+        }
         let message;
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            message = 'Geolocation permission denied';
+            message = "Geolocation permission denied";
             break;
           case error.POSITION_UNAVAILABLE:
-            message = 'Geolocation position unavailable';
+            message = "Geolocation position unavailable";
             break;
           case error.TIMEOUT:
-            message = 'Geolocation request timed out';
+            message = "Geolocation request timed out";
             break;
           default:
-            message = 'Geolocation error';
+            message = "Geolocation error";
         }
         reject(new Error(message));
       },
-      options
+      options,
     );
   });
 }
