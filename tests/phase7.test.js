@@ -1,5 +1,7 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import '../css/global.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
 import '../js/app.js'; // triggers service worker registration and route setup
 import { queueOfflineRequest, flushOfflineQueue } from '../js/utils/sync.js';
 

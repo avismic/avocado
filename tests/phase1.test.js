@@ -1,5 +1,7 @@
 import { expect, test, beforeEach } from 'vitest';
-import '../css/global.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
 
 beforeEach(async () => {
   document.body.innerHTML = '<div id="app"></div>';

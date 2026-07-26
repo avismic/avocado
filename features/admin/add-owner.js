@@ -1,4 +1,6 @@
-import '../../css/global.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
 import { logout } from '../../js/auth.js';
 import { navigate } from '../../js/router.js';
 import { apiFetch } from '../../js/utils/api.js';

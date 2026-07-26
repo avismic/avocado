@@ -1,5 +1,7 @@
-import "../../css/global.css";
-import "./owner-dashboard.css";
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./owner-dashboard.css");
 import { logout, getUser } from "../../js/auth.js";
 import { navigate } from "../../js/router.js";
 import { apiFetch } from "../../js/utils/api.js";

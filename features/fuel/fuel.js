@@ -1,5 +1,7 @@
-import "../../css/global.css";
-import "./fuel.css";
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./fuel.css");
 import { getDriverLocation } from "../../js/utils/geo.js";
 import { getUser } from "../../js/auth.js";
 import { showModal } from "../../features/shared/modal.js";

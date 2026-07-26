@@ -1,11 +1,21 @@
-import '../../css/global.css';
-import './login.css';
-import { login } from '../../js/auth.js';
-import { navigate } from '../../js/router.js';
+const globalCss = new URL("../../css/global.css", import.meta.url).href;
+const loginCss = new URL("./login.css", import.meta.url).href;
+
+for (const href of [globalCss, loginCss]) {
+  if (!document.querySelector(`link[href="${href}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  }
+}
+
+import { login } from "../../js/auth.js";
+import { navigate } from "../../js/router.js";
 
 export function mountLogin() {
-  const app = document.getElementById('app');
-  if (!app) throw new Error('Missing #app element');
+  const app = document.getElementById("app");
+  if (!app) throw new Error("Missing #app element");
 
   app.innerHTML = `
     <div class="login-wrapper">
@@ -30,10 +40,10 @@ export function mountLogin() {
     </div>
   `;
 
-  const form = document.getElementById('login-form');
-  const errDiv = document.getElementById('login-error');
+  const form = document.getElementById("login-form");
+  const errDiv = document.getElementById("login-error");
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errDiv.hidden = true;
     const username = form.username.value.trim();
@@ -42,13 +52,13 @@ export function mountLogin() {
     try {
       const session = await login(username, password);
       const role = session?.user?.role;
-      
-      if (role === 'admin') {
-        navigate('#admin-dashboard');
-      } else if (role === 'owner') {
-        navigate('#owner-dashboard');
+
+      if (role === "admin") {
+        navigate("#admin-dashboard");
+      } else if (role === "owner") {
+        navigate("#owner-dashboard");
       } else {
-        navigate('#driver-dashboard');
+        navigate("#driver-dashboard");
       }
     } catch (err) {
       errDiv.textContent = err.message;

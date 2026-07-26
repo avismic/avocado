@@ -1,5 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import '../css/global.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
 import '../js/router.js';
 import { logout, login } from '../js/auth.js';
 import { mountDriverDashboard } from '../features/driver-dashboard/driver-dashboard.js';

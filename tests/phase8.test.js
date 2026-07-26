@@ -1,5 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import '../css/global.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
 import { apiFetch } from '../js/utils/api.js';
 import { login, logout } from '../js/auth.js';
 import { markAttendance } from '../features/attendance/attendance.js';

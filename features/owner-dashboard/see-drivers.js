@@ -1,6 +1,8 @@
 //path: features/owner-dashboard/see-drivers.js
-import "../../css/global.css";
-import "./see-drivers.css";
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./see-drivers.css");
 import { logout, getUser } from "../../js/auth.js";
 import { navigate } from "../../js/router.js";
 import { apiFetch } from "../../js/utils/api.js";

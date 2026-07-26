@@ -1,6 +1,8 @@
 //path: features/shared/modal.js
-import "../../css/global.css";
-import "./modal.css";
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./modal.css");
 
 let currentBackdrop = null;
 

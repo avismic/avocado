@@ -1,5 +1,7 @@
-import "../../css/global.css";
-import "./attendance.css";
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./attendance.css");
 import { getAttendanceLogs } from "./attendance.js";
 import { getUser } from "../../js/auth.js";
 import { navigate } from "../../js/router.js";

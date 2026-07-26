@@ -1,5 +1,8 @@
-import '../../css/global.css';
-import './driver-dashboard.css';
+import { loadCss } from "../../js/utils/loadCss.js";
+
+loadCss(import.meta.url, "../../css/global.css");
+loadCss(import.meta.url, "./driver-dashboard.css");
+
 import { logout } from '../../js/auth.js';
 
 export function mountDriverDashboard() {
