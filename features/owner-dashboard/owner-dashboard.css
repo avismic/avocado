@@ -1,92 +1,139 @@
-/* Owner dashboard – dark glass UI */
 .owner-page {
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text-primary);
-  padding: 1rem 2rem;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
-/* Header */
 .owner-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--surface-border);
-}
-.owner-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-}
-.logout-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-/* Tile container */
+.owner-header .subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary, #86868b);
+  margin-bottom: 2px;
+}
+
+.owner-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--text-primary, #1d1d1f);
+}
+
+.owner-header .logout-btn {
+  margin-left: auto;
+}
+
 .owner-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
-.owner-tile {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  transition: transform 0.2s ease;
-}
-.owner-tile:hover { transform: translateY(-2px); }
-.owner-tile h3 { margin-top: 0.5rem; color: var(--text-primary); }
 
-/* Driver selector */
-.driver-selector {
-  margin: 1.5rem 0;
+.driver-selector-card {
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.driver-selector label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+
+.driver-selector-card label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #86868b);
 }
-.driver-selector select {
-  width: 100%;
-  padding: 0.5rem;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-}
-.driver-selector select:focus {
+
+.owner-select {
+  background: var(--bg-main, #f5f5f7);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--text-primary, #1d1d1f);
   outline: none;
-  border-color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Tables – shared style */
+.owner-select:focus {
+  border-color: var(--accent-color, #0071e3);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.owner-table-card {
+  padding: 24px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
 .owner-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
-}
-.owner-table th,
-.owner-table td {
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid var(--surface-border);
   text-align: left;
+  font-size: 14px;
 }
-.owner-table th { background: var(--surface); }
-.owner-table tbody tr:hover { background: rgba(255,255,255,0.05); }
 
-/* Empty‑state */
-.empty-state {
-  margin-top: 2rem;
+.owner-table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #86868b);
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+}
+
+.owner-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  color: var(--text-primary, #1d1d1f);
+}
+
+.owner-table tr:last-child td {
+  border-bottom: none;
+}
+
+.driver-badge {
+  font-weight: 600;
+  color: var(--text-primary, #1d1d1f);
+}
+
+.log-date {
+  font-weight: 500;
+}
+
+.log-time {
+  color: var(--text-secondary, #86868b);
+  font-size: 13px;
+}
+
+.log-amount {
+  font-weight: 600;
+}
+
+.log-coord {
+  color: var(--text-secondary, #86868b);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.empty-card {
+  padding: 32px 16px;
   text-align: center;
-  color: var(--text-secondary);
+}
+
+.empty-state {
+  color: var(--text-secondary, #86868b);
+  font-size: 14px;
+  margin: 0;
 }
