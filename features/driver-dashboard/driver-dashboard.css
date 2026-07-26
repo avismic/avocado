@@ -1,61 +1,73 @@
-/* features/driver-dashboard/driver-dashboard.css */
-
 .driver-dashboard {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text-primary);
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
 .driver-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface-border);
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+.driver-header .subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
 }
 
 .driver-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
 }
 
 .logout-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1rem;
-  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 16px;
 }
 
 .tiles-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .tile-card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
   cursor: pointer;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  transition: transform 0.2s ease;
+  user-select: none;
 }
 
-.tile-card:hover {
-  transform: translateY(-2px);
-}
-
-.tile-card h3 {
-  margin: 0.5rem 0 0;
-  font-size: 1.1rem;
+.icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-primary);
+}
+
+.tile-content h3 {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.tile-content p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }

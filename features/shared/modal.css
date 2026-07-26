@@ -1,78 +1,100 @@
-/* features/shared/modal.css */
-
-/* Backdrop – dark translucent with blur */
 .modal-backdrop {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
 }
 
-/* Glass‑morphic dialog */
 .modal-dialog {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  max-width: 90vw;
-  width: 340px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  color: var(--text-primary);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  width: 90%;
+  max-width: 360px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-header {
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+  font-size: 18px;
   font-weight: 600;
-  text-align: center;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
 }
 
 .modal-body {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+  font-size: 14px;
+  color: var(--text-secondary, #86868b);
   line-height: 1.4;
-  text-align: center;
+  margin-bottom: 24px;
 }
 
 .modal-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 10px;
+  width: 100%;
   justify-content: center;
 }
 
-/* Apple‑style primary button – white pill */
 .modal-primary-btn {
   flex: 1;
-  padding: 0.5rem 1rem;
-  background: var(--text-primary);
-  color: var(--bg);
+  background-color: var(--text-primary, #1d1d1f);
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .modal-primary-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  opacity: 0.9;
 }
 
-/* Secondary – subtle text button */
+.modal-primary-btn:active {
+  transform: scale(0.98);
+}
+
 .modal-secondary-btn {
   flex: 1;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary, #1d1d1f);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .modal-secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

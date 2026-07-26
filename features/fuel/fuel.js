@@ -1,3 +1,5 @@
+//path: features/fuel/fuel.js
+
 import '../../css/global.css';
 import { getDriverLocation } from '../../js/utils/geo.js';
 import { getUser } from '../../js/auth.js';

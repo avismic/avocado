@@ -1,16 +1,4 @@
-// features/shared/modal.js
-// Accessible glass‑morphic modal implementation
-// Usage example (inside any feature):
-// showModal({
-//   title: 'Confirm',
-//   message: 'Do you want to continue?',
-//   primaryBtnText: 'Yes',
-//   primaryBtnCallback: () => console.log('yes'),
-//   secondaryBtnText: 'No',
-//   secondaryBtnCallback: () => console.log('no')
-// });
-
-import '../../css/global.css'; // ensure design tokens are available
+import '../../css/global.css';
 import './modal.css';
 
 let currentBackdrop = null;
@@ -25,34 +13,23 @@ function _createDialog({ title, message, primaryBtnText, primaryBtnCallback, sec
   const dialog = document.createElement('div');
   dialog.className = 'modal-dialog';
 
-  // Header
-  const header = document.createElement('div');
-  header.className = 'modal-header';
-  header.textContent = title;
-  dialog.appendChild(header);
+  if (title) {
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+    header.textContent = title;
+    dialog.appendChild(header);
+  }
 
-  // Body
-  const body = document.createElement('div');
-  body.className = 'modal-body';
-  body.textContent = message;
-  dialog.appendChild(body);
+  if (message) {
+    const body = document.createElement('div');
+    body.className = 'modal-body';
+    body.textContent = message;
+    dialog.appendChild(body);
+  }
 
-  // Actions container
   const actions = document.createElement('div');
   actions.className = 'modal-actions';
 
-  // Primary button (required)
-  const primaryBtn = document.createElement('button');
-  primaryBtn.type = 'button';
-  primaryBtn.className = 'modal-primary-btn';
-  primaryBtn.textContent = primaryBtnText || 'OK';
-  primaryBtn.addEventListener('click', () => {
-    if (typeof primaryBtnCallback === 'function') primaryBtnCallback();
-    _close();
-  });
-  actions.appendChild(primaryBtn);
-
-  // Secondary button (optional)
   if (secondaryBtnText) {
     const secondaryBtn = document.createElement('button');
     secondaryBtn.type = 'button';
@@ -65,13 +42,22 @@ function _createDialog({ title, message, primaryBtnText, primaryBtnCallback, sec
     actions.appendChild(secondaryBtn);
   }
 
+  const primaryBtn = document.createElement('button');
+  primaryBtn.type = 'button';
+  primaryBtn.className = 'modal-primary-btn';
+  primaryBtn.textContent = primaryBtnText || 'OK';
+  primaryBtn.addEventListener('click', () => {
+    if (typeof primaryBtnCallback === 'function') primaryBtnCallback();
+    _close();
+  });
+  actions.appendChild(primaryBtn);
+
   dialog.appendChild(actions);
   return dialog;
 }
 
 function _close() {
   if (currentBackdrop) {
-    // Remove listeners first
     currentBackdrop.removeEventListener('click', _handleBackdropClick);
     document.removeEventListener('keydown', _handleEscKey);
     currentBackdrop.parentNode?.removeChild(currentBackdrop);
@@ -99,7 +85,6 @@ export function showModal({
   secondaryBtnText,
   secondaryBtnCallback
 }) {
-  // Prevent duplicate modal instances
   if (currentBackdrop) return;
 
   const backdrop = _createBackdrop();
@@ -109,11 +94,9 @@ export function showModal({
   document.body.appendChild(backdrop);
   currentBackdrop = backdrop;
 
-  // Accessibility – focus first button
   const firstBtn = dialog.querySelector('button');
   firstBtn?.focus();
 
-  // Event listeners for dismissal
   backdrop.addEventListener('click', _handleBackdropClick);
   document.addEventListener('keydown', _handleEscKey);
 }

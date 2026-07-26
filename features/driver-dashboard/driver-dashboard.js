@@ -1,4 +1,3 @@
-// features/driver-dashboard/driver-dashboard.js
 import '../../css/global.css';
 import './driver-dashboard.css';
 import { logout } from '../../js/auth.js';
@@ -10,23 +9,45 @@ export function mountDriverDashboard() {
   app.innerHTML = `
     <section class="driver-dashboard">
       <header class="driver-header">
-        <h1>Driver Dashboard</h1>
-        <button class="logout-btn" id="logout-btn">Logout</button>
-      </header>
-      <div class="tiles-container">
-        <div class="tile-card" id="attendance-tile">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg>
-          <h3>Mark Attendance</h3>
+        <div>
+          <p class="subtitle">Overview</p>
+          <h1>Driver Dashboard</h1>
         </div>
-        <div class="tile-card" id="fuel-tile">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 4 23 4 23 20 1 20 1 4"></polygon><line x1="1" y1="8" x2="23" y2="8"></line></svg>
-          <h3>Fuel Log</h3>
+        <button class="btn-secondary logout-btn" id="logout-btn">Logout</button>
+      </header>
+
+      <div class="tiles-container">
+        <div class="tile-card apple-card" id="attendance-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8v4l3 3"></path>
+              <circle cx="12" cy="12" r="9"></circle>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Mark Attendance</h3>
+            <p>Record your shift start and current location</p>
+          </div>
+        </div>
+
+        <div class="tile-card apple-card" id="fuel-tile">
+          <div class="icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="22" x2="15" y2="22"></line>
+              <line x1="4" y1="9" x2="14" y2="9"></line>
+              <path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path>
+              <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42l-2.82-2.82"></path>
+            </svg>
+          </div>
+          <div class="tile-content">
+            <h3>Fuel Log</h3>
+            <p>Log fuel refills and track expenses</p>
+          </div>
         </div>
       </div>
     </section>
   `;
 
-  // Attach handlers
   document.getElementById('logout-btn').addEventListener('click', () => logout());
   document.getElementById('attendance-tile').addEventListener('click', () => {
     import('../../features/attendance/attendance.js').then(m => m.markAttendance());
